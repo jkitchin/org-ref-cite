@@ -77,27 +77,62 @@ TODO: check mulitple citation references for prefix/suffix, which may be undefin
 	 (bibliography (mapcar (lambda (f)
 				 (format "[[%s]]" f))
 			       (org-cite-list-bibliography-files)))
+	 (natbib-options (or
+			  ;; keyword settings
+			  (cadr (assoc
+				 "NATBIB_OPTIONS"
+				 (org-collect-keywords
+				  '("NATBIB_OPTIONS"))))
+
+			  ;; settings in the org-file
+			  (save-excursion
+			    (goto-char (point-min))
+			    (when (re-search-forward "\\\\usepackage\\[?\\([^]]*\\)\\]?{natbib}" nil t)
+			      (match-string-no-properties 1)))
+
+			  ;; default global settings
+			  (cl-loop for (option package preview) in
+				   (append org-latex-default-packages-alist org-latex-packages-alist)
+				   when (string= package "natbib")
+				   return option)))
 	 (unique-keys (org-ref-cite-get-unique-keys))
 	 (bad-references (cl-loop for ref in citation-references
 				  if (not (member (org-element-property :key ref) valid-keys))
 				  collect ref)))
 
     (with-current-buffer buf
+      (read-only-mode -1)
       (erase-buffer)
       (org-mode)
       (org-ref-cite-s-insert "#+title: org-ref-cite report for %s\n\n" fname)
       (org-ref-cite-s-insert "- bibliographystyle :: %s\n" bibliographystyle)
       (org-ref-cite-s-insert "- bibliography :: %s\n" bibliography)
+      (org-ref-cite-s-insert "- natbib options :: %s\n" natbib-options)
+
+      ;; natbib options
+
       (org-ref-cite-s-insert "- # unique references :: %s\n" (length unique-keys))
 
       (when bad-references
 	(insert "\n* Bad references\n\n")
 	(cl-loop for ref in bad-references do
-		 ;; (message "%S" ref)
-		 (org-ref-cite-s-insert "- [[elisp:(progn (find-file \"%s\") (goto-char %s))][%s]]"
-					fname
-					(org-element-property :begin ref)
-					(org-element-property :key ref)))))
+		 (insert "- ")
+		 (insert-button (org-element-property :key ref)
+				'face '(:foreground "red")
+				'keymap (let ((map (make-sparse-keymap)))
+					  (define-key map (kbd "<mouse-1>")
+					    `(lambda ()
+					       (interactive)
+					       (save-window-excursion
+						 (find-file ,fname)
+						 (goto-char ,(org-element-property :begin ref))
+						 (org-ref-cite-replace-key-with-suggestions))))
+					  map)
+				'mouse-face 'highlight
+				'help-echo "Bad key, click to replace.")
+		 (org-ref-cite-s-insert " (Possible keys: %s)\n" (org-cite-basic--close-keys (org-element-property :key ref) valid-keys))))
+
+      (read-only-mode +1))
 
     (display-buffer-in-side-window buf '((side . right)))))
 
