@@ -53,17 +53,15 @@ OUTPUT:  buffer copy file"
 
 
 
+(defun org-ref-cite-s-insert (s &rest args)
+  "Insert S formatted with ARGS."
+  (insert (apply #'format s args)))
+
+
 (defun org-ref-cite ()
   "Generate a summary buffer of the current buffer.
-This buffer shows the current setup, shows bad citations, etc.
-
-TODO: LaTeX setup
-TODO: check mulitple citation references for prefix/suffix, which may be undefined."
+This buffer shows the current setup, shows bad citations, etc."
   (interactive)
-
-  (defun org-ref-cite-s-insert (s &rest args)
-    "Insert S formatted with ARGS."
-    (princ (apply #'format s args)))
 
   (let* ((buf (get-buffer-create "*org-ref-cite*"))
 	 (fname (buffer-file-name))
@@ -99,9 +97,27 @@ TODO: check mulitple citation references for prefix/suffix, which may be undefin
 	 (unique-keys (org-ref-cite-get-unique-keys))
 	 (bad-references (cl-loop for ref in citation-references
 				  if (not (member (org-element-property :key ref) valid-keys))
-				  collect ref)))
+				  collect ref))
+	 ;; I think we can only really support prefix on the first cite, and
+	 ;; suffix on the last cite. This is a convention though, it is not part
+	 ;; of the syntax, which allows a prefix and suffix on each
+	 ;; citation-reference.
+	 (questionable-cites (cl-loop for citation in citations
+				      ;; look for prefix on entry after the first one
+				      if (or (cl-loop for reference in (cdr (org-cite-get-references citation))
+						      if (org-element-property :prefix reference)
+						      return t)
+					     ;; or suffix before the last one.
+					     (cl-loop for reference in (butlast (org-cite-get-references citation))
+						      if (org-element-property :suffix reference)
+						      return t))
+				      collect (list citation (buffer-substring-no-properties
+							      (org-element-property :begin citation)
+							      (org-element-property :end citation))))))
 
-    (with-help-window buf
+    (with-current-buffer buf
+      (erase-buffer)
+      (org-mode)
       (org-ref-cite-s-insert "#+title: org-ref-cite report for %s\n\n" fname)
       (org-ref-cite-s-insert "- bibliographystyle :: %s\n" bibliographystyle)
       (org-ref-cite-s-insert "- bibliography :: %s\n" bibliography)
@@ -112,28 +128,70 @@ TODO: check mulitple citation references for prefix/suffix, which may be undefin
       (org-ref-cite-s-insert "- # unique references :: %s\n" (length unique-keys))
 
       (when bad-references
-	(princ "\n* Bad references\n\n")
+	(insert "\n* Bad references\n\n")
 	(cl-loop for ref in bad-references do
-		 (princ "- ")
-		 (with-current-buffer buf
-		   (insert-button (org-element-property :key ref)
-				  'face '(:foreground "red")
-				  'keymap (let ((map (make-sparse-keymap)))
-					    (define-key map (kbd "<mouse-1>")
-					      `(lambda ()
-						 (interactive)
-						 (save-window-excursion
-						   (find-file ,fname)
-						   (goto-char ,(org-element-property :begin ref))
-						   (org-ref-cite-replace-key-with-suggestions))))
-					    map)
-				  'mouse-face 'highlight
-				  'help-echo "Bad key, click to replace."))
+		 (insert "- ")
+		 (insert-button (org-element-property :key ref)
+				'face '(:foreground "red")
+				'keymap (let ((map (make-sparse-keymap)))
+					  (define-key map (kbd "<mouse-1>")
+					    `(lambda ()
+					       (interactive)
+					       (save-window-excursion
+						 (find-file ,fname)
+						 (goto-char ,(org-element-property :begin ref))
+						 (org-ref-cite-replace-key-with-suggestions))))
+					  map)
+				'mouse-face 'highlight
+				'help-echo "Bad key, click to replace.")
 		 (org-ref-cite-s-insert " (Possible keys: %s)\n" (org-cite-basic--close-keys
 								  (org-element-property :key ref)
-								  valid-keys)))))
+								  valid-keys))))
 
-    (with-current-buffer buf (org-mode))))
+      (when questionable-cites
+	(insert "* Questionable cites
+
+These citations have prefix text on one or more references that are not the first one, or suffix text that is not on the last reference. This has undefined export behavior.\n\n")
+	(cl-loop for (citation . cite) in questionable-cites do
+		 (org-ref-cite-s-insert " - ")
+		 (insert-button "[goto]"
+				'face '(:foreground "red")
+				'keymap (let ((map (make-sparse-keymap)))
+					  (define-key map (kbd "<mouse-1>")
+					    `(lambda ()
+					       (interactive)
+					       (find-file ,fname)
+					       (goto-char ,(org-element-property :begin citation))))
+					  map)
+				'mouse-face 'highlight
+				'help-echo "Bad key, click to replace.")
+		 (org-ref-cite-s-insert " %s\n" cite)))
+
+      (insert "\n* LaTeX setup\n\n")
+      (cl-loop for s in `(,(format "org-latex-prefer-user-labels = %s"
+				   org-latex-prefer-user-labels)
+			  ,(format "bibtex-dialect = %s" bibtex-dialect)
+			  ,(format "emacs-version = %s" (emacs-version))
+			  ,(format "org-version = %s" (org-version))
+			  ,(format "org-latex-pdf-process is defined as %s" org-latex-pdf-process)
+
+			  ,(format "bibtex-completion installed = %s" (featurep 'bibtex-completion))
+			  ,(format "bibtex-completion loaded = %s" (fboundp 'bibtex-completion-candidates)))
+	       do
+	       (insert "- " s "\n"))
+      (insert (format "- org-latex-default-packages-alist\n"))
+      (cl-loop for el in org-latex-default-packages-alist
+	       do
+	       (insert (format "  %S\n" el)))
+
+      (if (null org-latex-packages-alist)
+	  (insert "-  org-latex-packages-alist is nil\n")
+	(insert "-  org-latex-packages-alist\n")
+	(cl-loop for el in org-latex-packages-alist
+		 do
+		 (insert (format "  %S\n" el)))))
+
+    (display-buffer-in-side-window buf '((side . right)))))
 
 (provide 'org-ref-cite-utils)
 
