@@ -122,7 +122,7 @@ This library should be independent and orthogonal to org-ref. The only leakage I
 
 You should never type citations by hand; it is tedious and error-prone. I use C-c \ to insert a citation: [cite/t:@rose-2019-pybliom]
 
-This key does not exist, so the key is red:  [cite/t:@rose-2019-pybli]
+This key does not exist, so the key is red:  [cite/t:@rose-2019-pybliom;]
 
 The default cite type I use is cite/t, which I recommend to avoid conflicts with the cite links of org-ref. At the moment, org-mode sometimes recognize a bare citation as an org link if you have installed org-ref.
 
@@ -205,7 +205,7 @@ An embedded cite [cite/t:pre @rose-2019-pybliom; @kitchin-2018-machin-learn-cata
 - M-w copy the thing at point
 - M-m mark the thing at point
 
-[cite/t: @kitchin-2018-machin-learn-catal;@rose-2019-pybliom; ]
+[cite/t: @rose-2019-pybliom; ]
 
 ** export
 
@@ -234,7 +234,16 @@ If you do not want a bibliography printed, but still want a pdf, you use =#+prin
 # This is where the bibliography will be printed in your document
 #+print_bibliography: :title "References cited" :numbered t
 
+** Compatibility with org-ref
 
+org-ref-cite provides a compatibility function  =org-ref-to-org-cite= that will convert org-ref links to org-cite format.
+
+** Utilities
+
+org-ref-cite provides some utility functions:
+
+- org-ref-cite-extract-bibliography :: will extract the bibliography in the current buffer into a variety of formats and outputs. You can choose a formatted string or bibtex format, and choose buffer, copy or file for the output.
+- org-ref-cite :: This will analyze the current buffer and provide a summary buffer of the setup and any issues detected (e.g. bad cites, etc). It is useful for debugging.
 
 * What is left?
 
