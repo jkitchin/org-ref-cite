@@ -299,6 +299,9 @@ If you follow on the style part you will be prompted for a key to act on."
 
 (add-hook 'org-ctrl-c-ctrl-c-hook 'org-ref-cite-Cc-Cc)
 
+(org-cite-register-processor 'org-ref-cite-follow
+  :follow #'org-ref-cite-follow)
+
 (provide 'org-ref-cite-follow)
 
 ;;; org-ref-cite-follow.el ends here

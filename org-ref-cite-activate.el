@@ -83,6 +83,9 @@ Argument CITATION is an org-element holding the references."
 				  (org-element-property :end context))
 				 'latex t))))))))
 
+(org-cite-register-processor 'org-ref-cite-activate
+  :activate #'org-ref-cite-activate)
+
 (provide 'org-ref-cite-activate)
 
 ;;; org-ref-cite-activate.el ends here
