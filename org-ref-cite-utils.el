@@ -15,9 +15,9 @@
 (defun org-ref-cite-extract-bibliography (format output)
   "Extract the bibliography from the current org-file.
 FORMAT: formatted bibtex
-OUTPUT: string buffer file"
-  (interactive (list (completing-read "Format: " '(formatted bibtex))
-		     (completing-read "Output: " '(string buffer copy file))))
+OUTPUT:  buffer copy file"
+  (interactive (list (completing-read "Format: " '(formatted bibtex) nil t)
+		     (completing-read "Output: " '(buffer copy file) nil t)))
   (let* ((keys (org-ref-cite-get-unique-keys))
 	 (strings (cl-loop for key in keys collect
 			   (pcase format
@@ -31,8 +31,6 @@ OUTPUT: string buffer file"
 				(bibtex-copy-entry-as-kill)
 				(pop bibtex-entry-kill-ring)))))))
     (pcase output
-      ("string"
-       (string-join strings "\n\n"))
 
       ("buffer"
        (let ((buf (get-buffer-create "*org-ref-cite-export*")))
