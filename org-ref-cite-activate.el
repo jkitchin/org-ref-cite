@@ -40,6 +40,7 @@
     (define-key map (kbd "C-a") 'org-ref-cite-goto-cite-beginning)
     (define-key map (kbd "C-e") 'org-ref-cite-goto-cite-end)
     (define-key map (kbd "C-d") 'org-ref-cite-delete)
+    (define-key map (kbd "C-q") ' org-ref-cite-jump-to-visible-key)
     (define-key map (kbd "C-/") 'org-ref-cite-describe-keymap)
     (define-key map (kbd "C-k") 'org-ref-cite-kill-cite)
     (define-key map (kbd "M-w") 'org-ref-cite-copy-cite)

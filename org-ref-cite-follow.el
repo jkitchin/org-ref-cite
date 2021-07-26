@@ -24,7 +24,6 @@
 ;;; Code:
 
 
-(require 'avy)
 (require 'bibtex-completion)
 (require 'biblio)
 (require 'hydra)
@@ -215,15 +214,6 @@
 
     (message-goto-to)))
 
-
-(defun org-ref-cite-jump-to-visible-key ()
-  "Jump to a visible key with avy."
-  (interactive)
-  (avy-with avy-goto-typo
-    (avy-process (org-element-map (org-element-parse-buffer) 'citation
-		   (lambda (c)
-		     (org-element-property :begin c))))
-    (avy--style-fn avy-style)))
 
 ;; * Follow menu in hydra
 

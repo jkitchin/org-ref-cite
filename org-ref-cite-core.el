@@ -25,6 +25,7 @@
 ;;; Code:
 (require 'oc)
 (require 'oc-basic)
+(require 'avy)
 (require 'bibtex-completion)
 
 ;; org-cite uses (style . option) for styles, but that is more complicated than
@@ -206,6 +207,15 @@ If at the end, use `org-end-of-line' instead."
 
       (goto-char (- (org-element-property :end current-citation)
 		    (org-element-property :post-blank current-citation))))))
+
+(defun org-ref-cite-jump-to-visible-key ()
+  "Jump to a visible key with avy."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process (org-element-map (org-element-parse-buffer) 'citation
+		   (lambda (c)
+		     (org-element-property :begin c))))
+    (avy--style-fn avy-style)))
 
 
 ;; * Editing
