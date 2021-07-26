@@ -58,7 +58,8 @@
 (defcustom org-ref-cite-alternate-insert-actions
   '(("p" ivy-bibtex-open-pdf "Open PDF file (if present)")
     ("u" ivy-bibtex-open-url-or-doi "Open URL or DOI in browser")
-    ("c" ivy-bibtex-insert-citation "Insert citation")
+    ;; this insert-citation only inserts an org-ref cite.
+    ;; ("c" ivy-bibtex-insert-citation "Insert citation")
     ("r" ivy-bibtex-insert-reference "Insert reference")
     ("k" ivy-bibtex-insert-key "Insert BibTeX key")
     ("b" ivy-bibtex-insert-bibtex "Insert BibTeX entry")
