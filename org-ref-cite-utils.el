@@ -52,9 +52,6 @@ OUTPUT:  buffer copy file"
 	   (insert (string-join strings "\n\n"))))))))
 
 
-(defun org-ref-cite-s-insert (s &rest args)
-  "Insert S formatted with ARGS."
-  (insert (apply #'format s args)))
 
 (defun org-ref-cite ()
   "Generate a summary buffer of the current buffer.
@@ -63,6 +60,10 @@ This buffer shows the current setup, shows bad citations, etc.
 TODO: LaTeX setup
 TODO: check mulitple citation references for prefix/suffix, which may be undefined."
   (interactive)
+
+  (defun org-ref-cite-s-insert (s &rest args)
+    "Insert S formatted with ARGS."
+    (princ (apply #'format s args)))
 
   (let* ((buf (get-buffer-create "*org-ref-cite*"))
 	 (fname (buffer-file-name))
@@ -100,10 +101,7 @@ TODO: check mulitple citation references for prefix/suffix, which may be undefin
 				  if (not (member (org-element-property :key ref) valid-keys))
 				  collect ref)))
 
-    (with-current-buffer buf
-      (read-only-mode -1)
-      (erase-buffer)
-      (org-mode)
+    (with-help-window buf
       (org-ref-cite-s-insert "#+title: org-ref-cite report for %s\n\n" fname)
       (org-ref-cite-s-insert "- bibliographystyle :: %s\n" bibliographystyle)
       (org-ref-cite-s-insert "- bibliography :: %s\n" bibliography)
@@ -114,27 +112,28 @@ TODO: check mulitple citation references for prefix/suffix, which may be undefin
       (org-ref-cite-s-insert "- # unique references :: %s\n" (length unique-keys))
 
       (when bad-references
-	(insert "\n* Bad references\n\n")
+	(princ "\n* Bad references\n\n")
 	(cl-loop for ref in bad-references do
-		 (insert "- ")
-		 (insert-button (org-element-property :key ref)
-				'face '(:foreground "red")
-				'keymap (let ((map (make-sparse-keymap)))
-					  (define-key map (kbd "<mouse-1>")
-					    `(lambda ()
-					       (interactive)
-					       (save-window-excursion
-						 (find-file ,fname)
-						 (goto-char ,(org-element-property :begin ref))
-						 (org-ref-cite-replace-key-with-suggestions))))
-					  map)
-				'mouse-face 'highlight
-				'help-echo "Bad key, click to replace.")
-		 (org-ref-cite-s-insert " (Possible keys: %s)\n" (org-cite-basic--close-keys (org-element-property :key ref) valid-keys))))
+		 (princ "- ")
+		 (with-current-buffer buf
+		   (insert-button (org-element-property :key ref)
+				  'face '(:foreground "red")
+				  'keymap (let ((map (make-sparse-keymap)))
+					    (define-key map (kbd "<mouse-1>")
+					      `(lambda ()
+						 (interactive)
+						 (save-window-excursion
+						   (find-file ,fname)
+						   (goto-char ,(org-element-property :begin ref))
+						   (org-ref-cite-replace-key-with-suggestions))))
+					    map)
+				  'mouse-face 'highlight
+				  'help-echo "Bad key, click to replace."))
+		 (org-ref-cite-s-insert " (Possible keys: %s)\n" (org-cite-basic--close-keys
+								  (org-element-property :key ref)
+								  valid-keys)))))
 
-      (read-only-mode +1))
-
-    (display-buffer-in-side-window buf '((side . right)))))
+    (with-current-buffer buf (org-mode))))
 
 (provide 'org-ref-cite-utils)
 
