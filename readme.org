@@ -19,12 +19,13 @@ This directory contains org-ref-cite. It is a setup derived from oc-natbib.el th
 This document on its own is not as useful as the video that shows how I used it. You can see a video of this in action here:
 
 These videos are from the version of this library that was oc-bibtex.
+
 Version 1: https://www.youtube.com/watch?v=4ta4J20kpmM
 Version 2: https://www.youtube.com/watch?v=3TBYg1MZ6iY
 
 * setup
 
-Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded paths that you will have to adjust for where you have these. One day you will probably install this with MELPA.
+Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded paths that you will have to adjust for where you have these. One day you will probably install this with MELPA, and that won't be necessary.
 
 #+BEGIN_SRC emacs-lisp :results silent
 (use-package ivy-bibtex
@@ -83,23 +84,24 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
 
 ** Dependencies
 
-*** Activate
+***  org-ref-cite-activate.el
 
-Technically, this depends on bibtex-completion because of the =org-ref-cite-sort-year-ascending= function. Nothing will break if you don't use that. I don't see a way around this, I want to be able to use a key press (Shift-up) and have an action in the follow processor for this. You can always remove that key binding in the map if it bugs you.
+Technically, this depends on bibtex-completion because of the =org-ref-cite-sort-year-ascending= function. I don't think anything will break if you don't use that. I don't see a way around this, I want to be able to use a key press (Shift-up) and also have an action in the follow processor for this. You can always remove that key binding in the map if it bugs you.
 
-*** Insert
+*** org-ref-cite-insert.el
 
 - I use bibtex-completion to get the candidates.
 - ivy is required for this, and there is not a good way around that. completing-read is too limited to use in this.
+- These dependencies are pretty non-negotiable.
 
-*** Follow
+*** org-ref-cite-follow.el
 
 - Many follow functions depend on bibtex-completion functions
 - One depends on biblio
 
 I don't think anything will break if you don't use those.
 
-*** Export
+*** org-ref-cite-export.el
 
 No dependencies I can think of.
 
@@ -107,20 +109,30 @@ No dependencies I can think of.
 
 You do not have to use them all. Just don't require org-ref-cite, and import what you want and use them how you want instead.
 
+** Relationship to org-ref
+
+This library only handles citations, and provides no support for cross-references. org-ref still supports its links style citations, but I consider them deprecated and do not recommend them for future use. I am going to leave them in there though to continue supporting all the documents that use it. I am going to continue maintaining org-ref because it is probably still going to be the way I do cross-referencing, since that is not supported by org-cite. org-ref also still provides a lot of useful things like glossaries, etc.
+
+This library should be independent and orthogonal to org-ref. The only leakage I am aware of is if have org-ref loaded, it thinks cite: in the org-cite syntax is a broken link. The default in org-ref-cite should prevent that from being an issue.
+
 * Examples of usage
 
 
 ** Basic insertion
 
-I use C-c \ to insert a citation: [cite/t:@rose-2019-pybliom]
+You should never type citations by hand; it is tedious and error-prone. I use C-c \ to insert a citation: [cite/t:@rose-2019-pybliom]
 
 This key does not exist, so the key is red:  [cite/t:@rose-2019-pybli]
 
-The default cite type I use is cite/t, which I recommend to avoid conflicts with the cite links of org-ref. At the moment, org-mode will recognize a bare citation as an org link if you have installed org-ref.
+The default cite type I use is cite/t, which I recommend to avoid conflicts with the cite links of org-ref. At the moment, org-mode sometimes recognize a bare citation as an org link if you have installed org-ref.
 
-With a single prefix arg, you will be prompted to choose a reference and a style. [cite/num:@rose-2019-pybliom]
+With a single prefix arg, you will be prompted to choose a reference and a style. [cite:@rose-2019-pybliom]
 
 ** Multiple insertions
+
+If you accidentally modify a key to make it bad, it is super nice that only the bad key is made red!
+
+[cite/t:@rose-2019-pybliom;@kitchin-2018-machin-learn-catal;]
 
 With ivy-bibtex open, you have these default options for making multiple insertions:
 
@@ -128,12 +140,6 @@ With ivy-bibtex open, you have these default options for making multiple inserti
 | C-M-n | insert current entry and go to next                 |
 | C-M-p | insert current entry and go to previous entry       |
 | C-M-o | act on current entry with alternate action          |
-
-[cite/t:@rose-2019-pybliom;@kitchin-2018-machin-learn-catal]
-
-It is super nice that only the bad key is made red!
-
-[cite/t:@rose-2019-pybliom;@kitchin-2018-machin-learn-ctal;]
 
 
 Or, you can type C-o to get to the hydra menu of actions for ivy. Then, you can press m to mark entries, and finally press RET to insert them.
@@ -147,11 +153,10 @@ Scimax offers the following "enhancements" that are inspired from keybindings in
 | M-TAB | mark current entry                                                    |
 | C-s   | show marked entries                                                   |
 
-[cite/t:@rose-2019-pybliom;@kitchin-2015-examp-effec]
 
 There are two kinds of tooltips on citations. If you hover over the style portion, you will see how the citation is rendered in export. If you hover over a citation-reference key, you will see the bibliographic information for that key.
 
-[cite/t:pwhy @rose-2019-pybliom;@kitchin-2018-machin-learn-catal;@kitchin-2018-machin-learn-catal;]
+[cite/t:@rose-2019-pybliom;@kitchin-2018-machin-learn-catal;]
 
 
 ** Inserting on an existing citation
@@ -273,3 +278,15 @@ Most but not all of the natbib cite commands are supported. I don't plan to make
 - =[cite//f:@rose-2019-pybliom]= (citep*) [cite//f:@rose-2019-pybliom]
 - =[cite//c:@rose-2019-pybliom]= (Citep) [cite//c:@rose-2019-pybliom]
 - =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom;]
+
+* For MELPA
+
+This is probably the recipe. I probably do not need to distribute the bibliography, notes and style files via MELPA.
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-cite :fetcher github :repo "jkitchin/org-ref-cite" :files (:defaults))
+#+END_SRC
+
+Before going on MELPA:
+- [ ] org 9.5 should be installable from a package-manager
+- [ ] I need to build this to check for byte-compiler issues
