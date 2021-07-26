@@ -24,6 +24,7 @@
 ;;; Code:
 
 
+(require 'avy)
 (require 'bibtex-completion)
 (require 'biblio)
 (require 'hydra)
@@ -215,8 +216,14 @@
     (message-goto-to)))
 
 
-
-
+(defun org-ref-cite-jump-to-visible-key ()
+  "Jump to a visible key with avy."
+  (interactive)
+  (avy-with avy-goto-typo
+    (avy-process (org-element-map (org-element-parse-buffer) 'citation
+		   (lambda (c)
+		     (org-element-property :begin c))))
+    (avy--style-fn avy-style)))
 
 ;; * Follow menu in hydra
 
@@ -249,7 +256,8 @@
 
    "Navigation"
    (("j" org-ref-cite-previous-reference "Previous reference" :color red)
-    ("k" org-ref-cite-next-reference "Next reference" :color red))
+    ("k" org-ref-cite-next-reference "Next reference" :color red)
+    ("q" org-ref-cite-jump-to-visible-key "Jump to key"))
 
    "Copy"
    (("ck" org-ref-cite-copy-key "Copy key")
@@ -266,7 +274,8 @@
     ("wp" org-ref-cite-pubmed "Pubmed"))
 
    "Misc"
-   (("e" org-ref-cite-email "Email entry"))))
+   (("e" org-ref-cite-email "Email entry")
+    ("ESC" nil "Quit"))))
 
 
 
