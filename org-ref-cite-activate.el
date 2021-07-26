@@ -24,6 +24,7 @@
 
 (require 'oc-basic)
 (require 'org-ref-cite-core)
+(require 'org-ref-cite-follow)
 
 ;; * Activation
 
@@ -46,6 +47,7 @@
     (define-key map (kbd "M-s") 'org-ref-cite-update-style)
     (define-key map (kbd "M-p") 'org-ref-cite-update-pre/post)
     (define-key map (kbd "M-r") 'org-ref-cite-replace-key-with-suggestions)
+    (define-key map (kbd "RET") 'org-ref-cite-follow)
     map)
   "A keymap for `org-cite' citation elements."
   :group 'org-ref-cite)
