@@ -157,7 +157,7 @@ You can use a :numbered option to set if the Bibliography section should be numb
      (and style (format "\\bibliographystyle{%s}\n" style))
      (format "\\renewcommand{\\bibsection}{\\section%s{%s}}\n"
 	     (if numbered  "" "*")
-	     (if bibtitle (org-strip-quotes bibtitle) "References"))
+	     (if bibtitle (org-strip-quotes bibtitle) "Bibliography"))
      (format "\\%s{%s}"
 	     bibcmd
              (mapconcat #'file-name-sans-extension
