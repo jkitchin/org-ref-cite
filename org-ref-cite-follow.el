@@ -278,6 +278,7 @@
 
   ;; "Misc"
   ("e" org-ref-cite-email "Email entry" :column "Misc")
+  ("r" org-ref-cite "Run org-ref-cite" :column "Misc")
   ("ESC" nil "Quit" :column "Misc"))
 
 
