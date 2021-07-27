@@ -1,6 +1,5 @@
 #+title: org-ref-cite
 #+options: toc:nil
-#+latex_header: \usepackage{bibentry}
 
 \maketitle
 
@@ -72,8 +71,8 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
    org-cite-follow-processor 'org-ref-cite
    org-cite-activate-processor 'org-ref-cite
    org-cite-export-processor '((html csl "chicago-author-date-16th-edition.csl")
-				(latex org-ref-cite)
-				(t (basic numeric))))
+			       (latex org-ref-cite)
+			       (t (basic numeric))))
 
   (define-key org-mode-map (kbd "C-c \\") 'org-cite-insert))
 
@@ -81,6 +80,20 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
        flyspell-mark-duplications-flag nil
        warning-minimum-level :error)
 #+END_SRC
+
+
+Double checking we support everything.
+
+
+#+BEGIN_SRC emacs-lisp
+(cl-loop for capability in '(activate export follow insert) collect (list capability (org-cite-processor-has-capability-p 'org-ref-cite capability)))
+#+END_SRC
+
+#+RESULTS:
+| activate | t |
+| export   | t |
+| follow   | t |
+| insert   | t |
 
 ** Dependencies
 
@@ -158,6 +171,7 @@ There are two kinds of tooltips on citations. If you hover over the style portio
 
 [cite/t:@rose-2019-pybliom;@kitchin-2018-machin-learn-catal;]
 
+#+cite_export: org-ref-cite
 
 ** Inserting on an existing citation
 
@@ -171,6 +185,20 @@ If your point is on a citation the following rules apply:
 You can select the style for a new cite if you use a prefix arg with the insert cite command.
 
 You can delete a cite with a double prefix arg on the insert cite command. If point is on a reference, it will delete the reference, and if it is in the style part it will delete the whole citation. See also [[*Editing the citation at point]].
+
+** Prefix and suffix text on citations
+
+In LaTeX with natbib and bibtex, the options for using prefix and suffix text on citations are more limited than they are with biblatex. This package only supports global prefixes and suffixes. The global prefix is either the global prefix in a citation, or the prefix on the first citation. If both a global and local prefix are defined, they will be combined. The global suffix is defined as the suffix on the last citation.
+
+- global prefix ::  [cite/p:global prefix;@rose-2019-pybliom;]
+- local prefix ::   [cite/p:local prefix @rose-2019-pybliom;]
+- global + local prefix :: [cite/p:global ;local prefix @rose-2019-pybliom;]
+- global suffix :: [cite/p:@rose-2019-pybliom the suffix text;]
+- Prefix and suffix :: [cite/p:local prefix @rose-2019-pybliom the suffix text;]
+
+For multiple citations, there is not a way to use prefixes and suffixes, and it will be fontified to indicate this. How this looks in your export depends a lot on the bibliography style.
+
+[cite/p:this prefix is good @kitchin-2018-machin-learn-catal this suffix is ignored; this prefix is ignored @rose-2019-pybliom this suffix is good;]
 
 ** Following a citation
 
@@ -198,7 +226,7 @@ Check out the tooltips with prefix/suffix text: [cite/t:Thi s is before @rose-20
 
 You can use C-<left> and C-<right> to navigate around in the citation and between citations. Use C-a to go to the beginning and C-e to go to the end of the citations.
 
-An embedded cite [cite/t:global ;@rose-2019-pybliom; @kitchin-2018-machin-learn-catal and post;]   in a sentence.
+An embedded cite [cite/t:global ;@rose-2019-pybliom; @kitchin-2018-machin-learn-catal and post;]  in a sentence.
 
 
 ** Convenience
@@ -230,7 +258,7 @@ If you do not want a bibliography printed, but still want a pdf, you use =#+prin
 
 
 # You need these to get a bibliography in a PDF
-#+bibliographystyle: unsrtnat
+#+bibliographystyle: plainnat
 
 # This is where the bibliography will be printed in your document
 #+print_bibliography: :title "References cited" :numbered t
@@ -258,13 +286,13 @@ Most but not all of the natbib cite commands are supported. I don't plan to make
 
 * testing the styles
 
-#+BEGIN_SRC emacs-lisp :results org raw
-(cl-loop for (s . cmd) in oc-bibtex-styles concat
+#+BEGIN_SRC emacs-lisp
+(cl-loop for (s . cmd) in org-ref-cite-styles concat
 	 (format "- =[cite/%s:@rose-2019-pybliom]= (%s) [cite/%s:@rose-2019-pybliom]\n" s (substring cmd 1) s))
 #+END_SRC
 
 #+RESULTS:
-- =[cite/t:@rose-2019-pybliom]= (cite) [cite/t:@rose-2019-pybliom]
+- =[cite/t:@rose-2019-pybliom]= (citet) [cite/t:@rose-2019-pybliom]
 - =[cite/p:@rose-2019-pybliom]= (citep) [cite/p:@rose-2019-pybliom]
 - =[cite/num:@rose-2019-pybliom]= (citenum) [cite/num:@rose-2019-pybliom]
 - =[cite/a:@rose-2019-pybliom]= (citeauthor) [cite/a:@rose-2019-pybliom]
@@ -287,7 +315,10 @@ Most but not all of the natbib cite commands are supported. I don't plan to make
 - =[cite//bcf:@rose-2019-pybliom]= (Citealp*) [cite//bcf:@rose-2019-pybliom]
 - =[cite//f:@rose-2019-pybliom]= (citep*) [cite//f:@rose-2019-pybliom]
 - =[cite//c:@rose-2019-pybliom]= (Citep) [cite//c:@rose-2019-pybliom]
-- =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom;]
+- =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom]
+
+
+
 
 * For MELPA
 
