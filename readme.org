@@ -280,7 +280,7 @@ Most but not all of the natbib cite commands are supported. I don't plan to make
 This is probably the recipe. I probably do not need to distribute the bibliography, notes and style files via MELPA.
 
 #+BEGIN_SRC emacs-lisp
-(org-ref-cite :fetcher github :repo "jkitchin/org-ref-cite" :files (:defaults))
+(org-ref-cite :fetcher github :repo "jkitchin/org-ref-cite" :files (:defaults "readme.org"))
 #+END_SRC
 
 Before going on MELPA:
@@ -290,6 +290,10 @@ Before going on MELPA:
 
 
 * Dependencies
+
+** org-ref-cite-core.el
+
+- relies on bibtex-completion and avy. avy is only needed for one navigation function.
 
 **  org-ref-cite-activate.el
 
@@ -304,6 +308,7 @@ Technically, this depends on bibtex-completion because of the =org-ref-cite-sort
 
 - Many follow functions depend on bibtex-completion functions
 - One depends on biblio
+-
 
 I don't think anything will break if you don't use those.
 
@@ -327,7 +332,9 @@ Double checking we support everything.
 
 
 #+BEGIN_SRC emacs-lisp
-(cl-loop for capability in '(activate export follow insert) collect (list capability (org-cite-processor-has-capability-p 'org-ref-cite capability)))
+(cl-loop for capability in '(activate export follow insert) collect
+	 (list capability
+	       (org-cite-processor-has-capability-p 'org-ref-cite capability)))
 #+END_SRC
 
 #+RESULTS:
