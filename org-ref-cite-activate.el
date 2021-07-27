@@ -96,7 +96,7 @@ Argument CITATION is an org-element holding the references."
 
   ;; this only applies to org-ref-cite and natbib. biblatex is more flexible
   ;; than these ones.
-  (when  (member (cl-second (assoc 'latex org-cite-export-processor))
+  (when  (member (cl-second (assoc 'latex org-cite-export-processors))
 		 '(org-ref-cite natbib))
     (cl-loop for i from 0 for ref in (org-cite-get-references citation) do
 	     ;; Only prefixes on the first citation are actually supported.
