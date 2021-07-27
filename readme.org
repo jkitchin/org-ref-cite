@@ -192,13 +192,14 @@ There are many ways you might want to edit a citation. In addition to the ways y
 
 [cite/t:See @rose-2019-pybliom Ch. 5;]
 
-Check out the tooltips with prefix/suffix text: [cite/t:This is before @rose-2019-pybliom and after;]
+Check out the tooltips with prefix/suffix text: [cite/t:Thi s is before @rose-2019-pybliom and after;]
 
 ** Navigation
 
 You can use C-<left> and C-<right> to navigate around in the citation and between citations. Use C-a to go to the beginning and C-e to go to the end of the citations.
 
-An embedded cite [cite/t:pre @rose-2019-pybliom; @kitchin-2018-machin-learn-catal;] in a sentence.
+An embedded cite [cite/t:global ;@rose-2019-pybliom; @kitchin-2018-machin-learn-catal and post;]   in a sentence.
+
 
 ** Convenience
 
