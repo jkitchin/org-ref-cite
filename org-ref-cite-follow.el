@@ -223,7 +223,7 @@
     ("b" org-ref-cite-show-entry  "open bibtex")
     ("u" org-ref-cite-open-url-or-doi  "open url")
     ("n" org-ref-cite-open-notes "open notes")
-    ("N" org-ref-cite-open-notes-other-frame "open notes in other frame")
+    ("N" org-ref-cite-open-notes-other-frame "open notes (other frame)")
     ("I" org-ref-cite-info "Info"))
 
    "Edit"
