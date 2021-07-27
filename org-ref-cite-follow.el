@@ -238,11 +238,11 @@
 	    (interactive)
 	    (org-ref-cite-next-reference)
 	    (org-cite-insert nil))  "Insert after")
-    ("s" org-ref-cite-update-style "Change style")
-    ("P" org-ref-cite-update-pre/post "Update pre/post")
-    ("d" org-ref-cite-delete "Delete key/citation" :color red)
-    ("y" org-ref-cite-sort-year-ascending "Sort year")
-    ("r" org-ref-cite-replace-key-with-suggestions "Replace key with suggestions"))
+    ("s" org-ref-cite-update-style " Change style")
+    ("P" org-ref-cite-update-pre/post " Update pre/post")
+    ("d" org-ref-cite-delete " Delete key/citation" :color red)
+    ("y" org-ref-cite-sort-year-ascending " Sort year")
+    ("r" org-ref-cite-replace-key-with-suggestions " Replace key with suggestions"))
 
    "Navigation"
    (("j" org-ref-cite-previous-reference "Previous reference" :color red)
@@ -264,7 +264,7 @@
     ("wp" org-ref-cite-pubmed "Pubmed"))
 
    "Misc"
-   (("e" org-ref-cite-email "Email entry")
+   (("e" org-ref-cite-email " Email entry")
     ("ESC" nil "Quit"))))
 
 
