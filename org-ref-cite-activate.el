@@ -74,7 +74,7 @@ Argument CITATION is an org-element holding the references."
      ;; Running this export results in running the org-mode hooks. I use this
      ;; function to delay getting the string until you mouse over.
      'help-echo (lambda (window object position)
-		  (save-excursion
+		  (with-selected-window window
 		    (goto-char position)
 		    (let ((context (org-element-context)))
 		      (org-trim (org-export-string-as
@@ -82,6 +82,7 @@ Argument CITATION is an org-element holding the references."
 				  (org-element-property :begin context)
 				  (org-element-property :end context))
 				 'latex t)))))))
+
   (cl-loop for i from 0 for ref in (org-cite-get-references citation) do
 	   ;; Only prefixes on the first citation are actually supported.
 	   ;; And it will be concatenated with the global prefix.
@@ -93,7 +94,7 @@ Argument CITATION is an org-element holding the references."
 		 (length (org-no-properties
 			  (cl-third (org-cite-make-paragraph
 				     (org-element-property :prefix ref))))))
-	      '(face error help-echo "Prefix text is not valid here and will be ignored.")))
+	      '(face (:foreground "red" :underline t) help-echo "Prefix text is not valid here and will be ignored in export.")))
 
 	   ;; only suffixes on the last citation is supported.
 	   (when (and (< i (- (length (org-cite-get-references citation)) 1))
@@ -104,7 +105,7 @@ Argument CITATION is an org-element holding the references."
 			  (cl-third (org-cite-make-paragraph
 				     (org-element-property :suffix ref))))))
 	      (org-element-property :end ref)
-	      '(face error help-echo "Suffix text is not valid here and will be ignored.")))))
+	      '(face (:foreground "red" :underline t) help-echo "Suffix text is not valid here and will be ignored in export.")))))
 
 (org-cite-register-processor 'org-ref-cite-activate
   :activate #'org-ref-cite-activate)
