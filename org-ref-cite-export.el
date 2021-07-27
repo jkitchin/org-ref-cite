@@ -84,7 +84,7 @@ On multiple references, the prefix of the first and the suffix of the last is us
      ((and (string= "" prefix) (string= "" suffix))
       "")
      ((and (not (string= "" prefix)) (string= "" suffix))
-      (format "[%s]" prefix))
+      (format "[%s][]" prefix))
      (t
       (format "[%s][%s]" prefix suffix)))))
 
@@ -94,7 +94,7 @@ On multiple references, the prefix of the first and the suffix of the last is us
 We ignore _STYLE here for the simpler way of getting it from the
 citation. INFO is the export state, as a property list."
   (let ((style (org-element-property :style citation)))
-    (concat (cdr (assoc style oc-bibtex-styles))
+    (concat (cdr (assoc style org-ref-cite-styles))
 	    (org-ref-cite--build-optional-arguments citation info)
 	    (org-ref-cite--build-arguments citation))))
 
