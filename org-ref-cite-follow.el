@@ -251,7 +251,7 @@
 
    "Copy"
    (("ck" org-ref-cite-copy-key "Copy key")
-    ("cc" org-ref-cite-copy-citation)
+    ("cc" org-ref-cite-copy-citation "Copy citation")
     ("cf" org-ref-cite-copy-formatted-reference "Copy formatted entry")
     ("ce" org-ref-cite-copy-bibtex-entry "Copy bibtex entry"))
 
