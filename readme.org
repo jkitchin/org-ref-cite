@@ -91,7 +91,8 @@ Technically, this depends on bibtex-completion because of the =org-ref-cite-sort
 *** org-ref-cite-insert.el
 
 - I use bibtex-completion to get the candidates.
-- ivy is required for this, and there is not a good way around that. completing-read is too limited to use in this.
+- Ivy is required for this, as it has built-in contextual actions. While [[https://github.com/oantolin/embark][Embark]]
+ offers the same for completing-read, completing-read does not include actions out-of-box.
 - These dependencies are pretty non-negotiable.
 
 *** org-ref-cite-follow.el
