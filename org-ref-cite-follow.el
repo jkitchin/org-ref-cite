@@ -20,6 +20,17 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
+;; "Following" a citation triggers a hydra menu that gives lots of actions to choose from.
+
+;; You can add your own functions to the hydra like this. Here we add the
+;; function `your-func' to a new column named User, with a keybinding of "T" and
+;; hint of "test".
+;;
+;; (defhydra+ org-ref-cite-citation-reference () ("T" your-func "test" :column "User"))
+;;
+;; You can also add new functions to any existing column.
+;;
+;; It is more tricky to replace or remove heads.
 ;;
 ;;; Code:
 
@@ -217,56 +228,57 @@
 
 ;; * Follow menu in hydra
 
-(pretty-hydra-define org-ref-cite-citation-reference (:color blue)
-  ("Actions:"
-   (("p" org-ref-cite-open-pdf "open pdf")
-    ("b" org-ref-cite-show-entry  "open bibtex")
-    ("u" org-ref-cite-open-url-or-doi  "open url")
-    ("n" org-ref-cite-open-notes "open notes")
-    ("N" org-ref-cite-open-notes-other-frame "open notes (other frame)")
-    ("I" org-ref-cite-info "Info"))
 
-   "Edit"
-   (("ii" org-cite-insert "Insert")
-    ("ib" (lambda ()
-	    (interactive)
-	    (let ((context (org-element-context)))
-	      (unless (eq (point) (org-element-property :begin context))
-		(org-ref-cite-previous-reference)))
-	    (org-cite-insert nil))  "Insert before")
-    ("ia" (lambda ()
-	    (interactive)
-	    (org-ref-cite-next-reference)
-	    (org-cite-insert nil))  "Insert after")
-    ("s" org-ref-cite-update-style " Change style")
-    ("P" org-ref-cite-update-pre/post " Update pre/post")
-    ("d" org-ref-cite-delete " Delete key/citation" :color red)
-    ("y" org-ref-cite-sort-year-ascending " Sort year")
-    ("r" org-ref-cite-replace-key-with-suggestions " Replace key with suggestions"))
+(defhydra org-ref-cite-citation-reference (:color blue)
+  "org-ref-cite:"
+  ;; Actions
+  ("p" org-ref-cite-open-pdf "open pdf" :column "Actions")
+  ("b" org-ref-cite-show-entry  "open bibtex" :column "Actions")
+  ("u" org-ref-cite-open-url-or-doi  "open url" :column "Actions")
+  ("n" org-ref-cite-open-notes "open notes" :column "Actions")
+  ("N" org-ref-cite-open-notes-other-frame "open notes (other frame)" :column "Actions")
+  ("I" org-ref-cite-info "Info" :column "Actions")
 
-   "Navigation"
-   (("j" org-ref-cite-previous-reference "Previous reference" :color red)
-    ("k" org-ref-cite-next-reference "Next reference" :color red)
-    ("q" org-ref-cite-jump-to-visible-key "Jump to key"))
+  ;; Edit
+  ("ii" org-cite-insert "Insert" :column "Edit")
+  ("ib" (lambda ()
+	  (interactive)
+	  (let ((context (org-element-context)))
+	    (unless (eq (point) (org-element-property :begin context))
+	      (org-ref-cite-previous-reference)))
+	  (org-cite-insert nil))  "Insert before" :column "Edit")
+  ("ia" (lambda ()
+	  (interactive)
+	  (org-ref-cite-next-reference)
+	  (org-cite-insert nil))  "Insert after" :column "Edit")
+  ("s" org-ref-cite-update-style "Change style" :column "Edit")
+  ("P" org-ref-cite-update-pre/post "Update pre/post" :column "Edit")
+  ("d" org-ref-cite-delete "Delete key/citation" :color red :column "Edit")
+  ("y" org-ref-cite-sort-year-ascending "Sort year" :column "Edit")
+  ("r" org-ref-cite-replace-key-with-suggestions "Replace key with suggestions" :column "Edit")
 
-   "Copy"
-   (("ck" org-ref-cite-copy-key "Copy key")
-    ("cc" org-ref-cite-copy-citation "Copy citation")
-    ("cf" org-ref-cite-copy-formatted-reference "Copy formatted entry")
-    ("ce" org-ref-cite-copy-bibtex-entry "Copy bibtex entry"))
+  ;; "Navigation"
+  ("j" org-ref-cite-previous-reference "Previous reference" :color red :column "Navigation")
+  ("k" org-ref-cite-next-reference "Next reference" :color red :column "Navigation")
+  ("q" org-ref-cite-jump-to-visible-key "Jump to key" :column "Navigation")
 
-   "WWW"
-   (("ww" org-ref-cite-wos "WOS")
-    ("wr" org-ref-cite-wos-related "WOS related")
-    ("wc" org-ref-cite-wos-citing "WOS citing")
-    ("wg" org-ref-cite-google-scholar "Google Scholar")
-    ("wc" org-ref-cite-crossref "Crossref")
-    ("wp" org-ref-cite-pubmed "Pubmed"))
+  ;; "Copy"
+  ("ck" org-ref-cite-copy-key "Copy key" :column "Copy")
+  ("cc" org-ref-cite-copy-citation "Copy citation" :column "Copy")
+  ("cf" org-ref-cite-copy-formatted-reference "Copy formatted entry" :column "Copy")
+  ("ce" org-ref-cite-copy-bibtex-entry "Copy bibtex entry" :column "Copy")
 
-   "Misc"
-   (("e" org-ref-cite-email " Email entry")
-    ("ESC" nil "Quit"))))
+  ;; "WWW"
+  ("ww" org-ref-cite-wos "WOS" :column "WWW")
+  ("wr" org-ref-cite-wos-related "WOS related" :column "WWW")
+  ("wc" org-ref-cite-wos-citing "WOS citing" :column "WWW")
+  ("wg" org-ref-cite-google-scholar "Google Scholar" :column "WWW")
+  ("wc" org-ref-cite-crossref "Crossref" :column "WWW")
+  ("wp" org-ref-cite-pubmed "Pubmed" :column "WWW")
 
+  ;; "Misc"
+  ("e" org-ref-cite-email "Email entry" :column "Misc")
+  ("ESC" nil "Quit" :column "Misc"))
 
 
 (defun org-ref-cite-follow (&optional datum _)
