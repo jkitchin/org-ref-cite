@@ -67,7 +67,7 @@
 
 
 (defface org-ref-cite-invalid-prefix-suffix-face
-  `((t (:inherit org-link :foreground ,org-ref-cite-invalid-prefix-suffix-color)))
+  `((t (:inherit org-cite :foreground ,org-ref-cite-invalid-prefix-suffix-color)))
   "Face for invalid prefix/suffix text in multireference citations")
 
 
