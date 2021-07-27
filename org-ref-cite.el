@@ -37,6 +37,7 @@
 (require 'org-ref-cite-follow)
 (require 'org-ref-cite-export)
 (require 'org-ref-cite-compat)
+(require 'org-ref-cite-utils)
 
 
 (org-cite-register-processor 'org-ref-cite
