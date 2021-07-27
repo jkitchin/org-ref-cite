@@ -40,7 +40,7 @@
 	     (setf (buffer-substring (org-element-property :begin cite)
 				     (org-element-property :end cite))
 		   (let* ((type (org-element-property :type cite))
-			  (style (or (car (rassoc (concat "\\" type) oc-bibtex-styles)) "t"))
+			  (style (or (car (rassoc (concat "\\" type) org-ref-cite-styles)) "t"))
 			  (keys (split-string (org-element-property :path cite) ","))
 			  (desc (when (org-element-property :contents-begin cite)
 				  (buffer-substring-no-properties
