@@ -407,13 +407,6 @@ This is intended for use in fixing bad keys, but would work for similar keys."
 
 ;; * miscellaneous utilities
 
-(defun org-ref-cite-copy-cite ()
-  "Copy the reference/citation at point."
-  (interactive)
-  (org-ref-cite-mark-cite)
-  (call-interactively 'kill-ring-save))
-
-
 (defun org-ref-cite-mark-cite ()
   "Mark the reference/citation at point."
   (interactive)
@@ -421,6 +414,13 @@ This is intended for use in fixing bad keys, but would work for similar keys."
     (set-mark (- (org-element-property :end datum)
 		 (or (org-element-property :post-blank datum) 0)))
     (goto-char (org-element-property :begin datum))))
+
+
+(defun org-ref-cite-copy-cite ()
+  "Copy the reference/citation at point."
+  (interactive)
+  (org-ref-cite-mark-cite)
+  (call-interactively 'kill-ring-save))
 
 
 (provide 'org-ref-cite-core)
