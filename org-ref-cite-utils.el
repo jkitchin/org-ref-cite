@@ -3,6 +3,15 @@
 ;;; Commentary:
 ;;
 
+;;;###autoload
+(defun org-ref-cite-help ()
+  "Open the `org-ref-cite' manual."
+  (interactive)
+  (find-file (expand-file-name
+              "readme.org"
+              (file-name-directory
+               (find-library-name "org-ref-cite")))))
+
 
 (defun org-ref-cite-get-unique-keys ()
   "Get the unique keys in the buffer."
@@ -12,6 +21,7 @@
        (org-element-property :key cr)))))
 
 
+;;;###autoload
 (defun org-ref-cite-extract-bibliography (format output)
   "Extract the bibliography from the current org-file.
 FORMAT: formatted bibtex
@@ -58,6 +68,7 @@ OUTPUT:  buffer copy file"
   (insert (apply #'format s args)))
 
 
+;;;###autoload
 (defun org-ref-cite ()
   "Generate a summary buffer of the current buffer.
 This buffer shows the current setup, shows bad citations, etc."
