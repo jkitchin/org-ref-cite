@@ -337,21 +337,43 @@ If at the end, use `org-end-of-line' instead."
 
 
 (defun org-ref-cite-update-pre/post ()
-  "Change the pre/post text of the reference at point."
+  "Change the pre/post text of the reference at point.
+Notes: For export, prefix text is only supported on the first
+reference. suffix text is only supported on the last reference.
+This function will let you put prefix/suffix text on any
+reference, but font-lock will indicate it is not supported for
+natbib export."
   (interactive)
   (let* ((datum (org-element-context))
 	 (ref (if (eq (org-element-type datum) 'citation-reference)
 		  datum
 		(error "Not on a citation reference")))
+	 (current-citation (org-element-property :parent datum))
+	 (refs (org-cite-get-references current-citation))
 	 (key (org-element-property :key ref))
 	 (pre (read-string "Prefix text: " (org-element-property :prefix ref)))
-	 (post (read-string "Suffix text: " (org-element-property :suffix ref))))
+	 (post (read-string "Suffix text: " (org-element-property :suffix ref)))
+	 (index (seq-position refs ref
+			      (lambda (r1 r2)
+				(and (string= (org-element-property :key r1)
+					      (org-element-property :key r2))
+				     (equal (org-element-property :prefix r1)
+					    (org-element-property :prefix r2))
+				     (equal (org-element-property :suffix r1)
+					    (org-element-property :suffix r2)))))))
+    (when (and (not (string= "" pre))
+	       (> index 0))
+      (message "Warning, prefixes only work on the first key."))
+
+    (when (and (not (string= "" post))
+	       (not (= index (- (length refs) 1))))
+      (message "Warning, suffixes only work on the last key."))
 
     (setf (buffer-substring (org-element-property :begin ref)
 			    (org-element-property :end ref))
 	  (org-element-interpret-data `(citation-reference
-					(:key ,key :prefix ,(concat pre " ")
-					      :suffix ,(concat  " " post)))))))
+					(:key ,key :prefix ,pre
+					      :suffix ,post))))))
 
 
 (defun org-ref-cite-kill-cite ()

@@ -81,7 +81,30 @@ Argument CITATION is an org-element holding the references."
 				 (buffer-substring
 				  (org-element-property :begin context)
 				  (org-element-property :end context))
-				 'latex t))))))))
+				 'latex t)))))))
+  (cl-loop for i from 0 for ref in (org-cite-get-references citation) do
+	   ;; Only prefixes on the first citation are actually supported.
+	   ;; And it will be concatenated with the global prefix.
+	   (when (and (> i 0)
+		      (org-element-property :prefix ref))
+	     (add-text-properties
+	      (org-element-property :begin ref)
+	      (+ (org-element-property :begin ref)
+		 (length (org-no-properties
+			  (cl-third (org-cite-make-paragraph
+				     (org-element-property :prefix ref))))))
+	      '(face error help-echo "Prefix text is not valid here and will be ignored.")))
+
+	   ;; only suffixes on the last citation is supported.
+	   (when (and (< i (- (length (org-cite-get-references citation)) 1))
+		      (org-element-property :suffix ref))
+	     (add-text-properties
+	      (- (org-element-property :end ref)
+		 (length (org-no-properties
+			  (cl-third (org-cite-make-paragraph
+				     (org-element-property :suffix ref))))))
+	      (org-element-property :end ref)
+	      '(face error help-echo "Suffix text is not valid here and will be ignored.")))))
 
 (org-cite-register-processor 'org-ref-cite-activate
   :activate #'org-ref-cite-activate)

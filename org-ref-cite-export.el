@@ -63,17 +63,30 @@ These are the cite keys"
 
 (defun org-ref-cite--build-optional-arguments (citation info)
   "Build optional arguments for citation command.
-CITATION is the citation object.  INFO is the export state, as a property list."
-  (let* ((origin (pcase (org-cite-get-references citation)
-                   (`(,reference) reference)
-                   (_ citation)))
-         (suffix (org-element-property :suffix origin))
-         (prefix (org-element-property :prefix origin)))
-    (concat (and prefix (format "[%s]" (org-trim (org-export-data prefix info))))
-            (cond
-             (suffix (format "[%s]" (org-trim (org-export-data suffix info))))
-             (prefix "[]")
-             (t nil)))))
+CITATION is the citation object.  INFO is the export state, as a property list.
+The following behavior is expected:
+On a single reference, prefix and suffix is used as the optional arguments when defined.
+On multiple references, the prefix of the first and the suffix of the last is used, when defined.
+"
+  (let* ((references (org-cite-get-references citation))
+	 (local-prefix (org-element-property :prefix (cl-first references)))
+	 (global-prefix (org-element-property :prefix citation))
+
+	 (prefix (concat
+		  (if global-prefix (org-trim (org-export-data global-prefix info)) "")
+		  (if (and global-prefix local-prefix) " " "")
+		  (if local-prefix (org-trim (org-export-data local-prefix info)) "")))
+
+	 (local-suffix (org-element-property :suffix (car (last references))))
+	 (suffix (if local-suffix (org-trim (org-export-data local-suffix info)) "")))
+
+    (cond
+     ((and (string= "" prefix) (string= "" suffix))
+      "")
+     ((and (not (string= "" prefix)) (string= "" suffix))
+      (format "[%s]" prefix))
+     (t
+      (format "[%s][%s]" prefix suffix)))))
 
 
 (defun org-ref-cite-export-citation (citation _style _ info)
