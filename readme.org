@@ -71,7 +71,7 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
    org-cite-insert-processor 'org-ref-cite
    org-cite-follow-processor 'org-ref-cite
    org-cite-activate-processor 'org-ref-cite
-   org-cite-export-processor '((html csl "chicago-author-date-16th-edition.csl")
+   org-cite-export-processors '((html csl "chicago-author-date-16th-edition.csl")
 			       (latex org-ref-cite)
 			       (t (basic numeric))))
 
@@ -89,11 +89,9 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
 
 You should never type citations by hand; it is tedious and error-prone. I use C-c \ to insert a citation: [cite/t:@rose-2019-pybliom]
 
-This key does not exist, so the key is red:  [cite/t:@rose-2019-pybliom;]
-
 The default cite type I use is cite/t, which I recommend to avoid conflicts with the cite links of org-ref. At the moment, org-mode sometimes recognize a bare citation as an org link if you have installed org-ref.
 
-With a single prefix arg, you will be prompted to choose a reference and a style. [cite:@rose-2019-pybliom]
+With a single prefix arg, you will be prompted to choose a reference and a style. [cite/t:@rose-2019-pybliom;]
 
 ** Multiple insertions
 
@@ -154,12 +152,14 @@ For multiple citations, there is not a way to use prefixes and suffixes, and it 
 
 [cite/p:this prefix is good @kitchin-2018-machin-learn-catal this suffix is ignored; this prefix is ignored @rose-2019-pybliom this suffix is good;]
 
-
 ** Following a citation
 
-You follow a citation by clicking on it, pressing RET on it, or C-c C-o on it. All of these open a hydra that has many other actions you can choose for the citation or reference at point, unless you are on the style part of the cite, then you will be prompted for a reference to act on.
+You follow a citation by clicking on it, pressing RET on it,  C-c C-o, or C-c C-c on it. All of these open a hydra that has many other actions you can choose for the citation or reference at point, unless you are on the style part of the cite, then you will be prompted for a reference to act on.
 
 [cite/num:@kitchin-2018-machin-learn-catal;@rose-2019-pybliom;]
+
+The hydra menu has actions to perform on the key at point, edit actions, navigation actions, WWW search actions, and some miscellaneous actions.
+
 
 ** Editing the citation at point
 
@@ -173,9 +173,9 @@ There are many ways you might want to edit a citation. In addition to the ways y
 - M-s to update the style
 - M-r will prompt you to replace the key at point with a similar key (e.g. if it is red because one character is wrong).
 
-[cite/t:See @rose-2019-pybliom Ch. 5;]
+[cite/p:See @rose-2019-pybliom Ch. 5;]
 
-Check out the tooltips with prefix/suffix text: [cite/t:Thi s is before @rose-2019-pybliom and after;]
+Check out the tooltips with prefix/suffix text: [cite/t:This is before @rose-2019-pybliom and after;]
 
 ** Navigation
 
@@ -298,9 +298,7 @@ Technically, this depends on bibtex-completion because of the =org-ref-cite-sort
 ** org-ref-cite-insert.el
 
 - I use bibtex-completion to get the candidates.
-- - Ivy is required for this, as it has built-in contextual actions. While [[https://github.com/oantolin/embark][Embark]] offers the same for completing-read, completing-read does not include actions out-of-box.
-
-- These dependencies are pretty non-negotiable.
+- Ivy is required for this, as it allows single, multiple, and sequential actions on the selected candidates. While [[https://github.com/oantolin/embark][Embark]] offers the same for completing-read, completing-read does not include actions out-of-the-box.
 
 ** org-ref-cite-follow.el
 
