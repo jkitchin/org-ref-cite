@@ -12,8 +12,9 @@ This directory contains org-ref-cite. It is a setup derived from oc-natbib.el th
 5. Editing functions for manipulating cites (shifting the order, sorting, deleting, copying, etc)
 6. Keymap on cites to make those things (4, 5) easy
 7. A hydra follow menu to do lots of useful things on a cite
-8. A bibliographystyle keyword
-9. Customizable print_bibliography keyword
+8. a natbib_options keyword
+9. A bibliographystyle keyword
+10. Customizable print_bibliography keyword
 
 This document on its own is not as useful as the video that shows how I used it. You can see a video of this in action here:
 
@@ -80,54 +81,6 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
        flyspell-mark-duplications-flag nil
        warning-minimum-level :error)
 #+END_SRC
-
-
-Double checking we support everything.
-
-
-#+BEGIN_SRC emacs-lisp
-(cl-loop for capability in '(activate export follow insert) collect (list capability (org-cite-processor-has-capability-p 'org-ref-cite capability)))
-#+END_SRC
-
-#+RESULTS:
-| activate | t |
-| export   | t |
-| follow   | t |
-| insert   | t |
-
-** Dependencies
-
-***  org-ref-cite-activate.el
-
-Technically, this depends on bibtex-completion because of the =org-ref-cite-sort-year-ascending= function. I don't think anything will break if you don't use that. I don't see a way around this, I want to be able to use a key press (Shift-up) and also have an action in the follow processor for this. You can always remove that key binding in the map if it bugs you.
-
-*** org-ref-cite-insert.el
-
-- I use bibtex-completion to get the candidates.
-- Ivy is required for this, as it has built-in contextual actions. While [[https://github.com/oantolin/embark][Embark]]
- offers the same for completing-read, completing-read does not include actions out-of-box.
-- These dependencies are pretty non-negotiable.
-
-*** org-ref-cite-follow.el
-
-- Many follow functions depend on bibtex-completion functions
-- One depends on biblio
-
-I don't think anything will break if you don't use those.
-
-*** org-ref-cite-export.el
-
-No dependencies I can think of.
-
-** I don't want all these pieces...
-
-You do not have to use them all. Just don't require org-ref-cite, and import what you want and use them how you want instead.
-
-** Relationship to org-ref
-
-This library only handles citations, and provides no support for cross-references. org-ref still supports its links style citations, but I consider them deprecated and do not recommend them for future use. I am going to leave them in there though to continue supporting all the documents that use it. I am going to continue maintaining org-ref because it is probably still going to be the way I do cross-referencing, since that is not supported by org-cite. org-ref also still provides a lot of useful things like glossaries, etc.
-
-This library should be independent and orthogonal to org-ref. The only leakage I am aware of is if have org-ref loaded, it thinks cite: in the org-cite syntax is a broken link. The default in org-ref-cite should prevent that from being an issue.
 
 * Examples of usage
 
@@ -200,6 +153,7 @@ In LaTeX with natbib and bibtex, the options for using prefix and suffix text on
 For multiple citations, there is not a way to use prefixes and suffixes, and it will be fontified to indicate this. How this looks in your export depends a lot on the bibliography style.
 
 [cite/p:this prefix is good @kitchin-2018-machin-learn-catal this suffix is ignored; this prefix is ignored @rose-2019-pybliom this suffix is good;]
+
 
 ** Following a citation
 
@@ -332,3 +286,54 @@ This is probably the recipe. I probably do not need to distribute the bibliograp
 Before going on MELPA:
 - [ ] org 9.5 should be installable from a package-manager
 - [ ] I need to build this to check for byte-compiler issues
+
+
+
+* Dependencies
+
+**  org-ref-cite-activate.el
+
+Technically, this depends on bibtex-completion because of the =org-ref-cite-sort-year-ascending= function. I don't think anything will break if you don't use that. I don't see a way around this, I want to be able to use a key press (Shift-up) and also have an action in the follow processor for this. You can always remove that key binding in the map if it bugs you.
+
+** org-ref-cite-insert.el
+
+- I use bibtex-completion to get the candidates.
+- - Ivy is required for this, as it has built-in contextual actions. While [[https://github.com/oantolin/embark][Embark]] offers the same for completing-read, completing-read does not include actions out-of-box.
+
+- These dependencies are pretty non-negotiable.
+
+** org-ref-cite-follow.el
+
+- Many follow functions depend on bibtex-completion functions
+- One depends on biblio
+
+I don't think anything will break if you don't use those.
+
+** org-ref-cite-export.el
+
+No dependencies I can think of.
+
+** I don't want all these pieces...
+
+You do not have to use them all. Just don't require org-ref-cite, and import what you want and use them how you want instead.
+
+* Relationship to org-ref
+
+This library only handles citations, and provides no support for cross-references. org-ref still supports its links style citations, but I consider them deprecated and do not recommend them for future use. I am going to leave them in there though to continue supporting all the documents that use it. I am going to continue maintaining org-ref because it is probably still going to be the way I do cross-referencing, since that is not supported by org-cite. org-ref also still provides a lot of useful things like glossaries, etc.
+
+This library should be independent and orthogonal to org-ref. The only leakage I am aware of is if have org-ref loaded, it thinks cite: in the org-cite syntax is a broken link. The default in org-ref-cite should prevent that from being an issue.
+
+* Sandbox
+
+Double checking we support everything.
+
+
+#+BEGIN_SRC emacs-lisp
+(cl-loop for capability in '(activate export follow insert) collect (list capability (org-cite-processor-has-capability-p 'org-ref-cite capability)))
+#+END_SRC
+
+#+RESULTS:
+| activate | t |
+| export   | t |
+| follow   | t |
+| insert   | t |
