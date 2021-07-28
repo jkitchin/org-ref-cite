@@ -49,6 +49,7 @@
     (define-key map (kbd "M-p") 'org-ref-cite-update-pre/post)
     (define-key map (kbd "M-r") 'org-ref-cite-replace-key-with-suggestions)
     (define-key map (kbd "RET") 'org-ref-cite-follow)
+    (define-key map (kbd "<mouse-1>") 'org-ref-cite-follow)
     map)
   "A keymap for `org-cite' citation elements."
   :group 'org-ref-cite)
@@ -65,9 +66,18 @@
   "Color for invalid prefix/suffixes in multireference citations."
   :group 'org-ref-cite)
 
+(defcustom org-ref-cite-invalid-style-color
+  "red"
+  "Color for invalid styles that are not defined in `org-ref-cite-styles'."
+  :group 'org-ref-cite)
+
 
 (defface org-ref-cite-invalid-prefix-suffix-face
   `((t (:inherit org-cite :foreground ,org-ref-cite-invalid-prefix-suffix-color)))
+  "Face for invalid prefix/suffix text in multireference citations")
+
+(defface org-ref-cite-invalid-style-face
+  `((t (:inherit org-cite :foreground ,org-ref-cite-invalid-style-color)))
   "Face for invalid prefix/suffix text in multireference citations")
 
 
@@ -98,6 +108,13 @@ Argument CITATION is an org-element holding the references."
   ;; than these ones.
   (when  (member (cl-second (assoc 'latex org-cite-export-processors))
 		 '(org-ref-cite natbib))
+    ;; Check the style
+    (unless (assoc (org-element-property :style citation) org-ref-cite-styles)
+      (add-text-properties
+       (org-element-property :begin citation)
+       (1- (org-with-point-at (org-element-property :begin citation) (search-forward ":")))
+       '(face org-ref-cite-invalid-style-face help-echo
+	      "This style is not supported in org-ref-cite.")))
     (cl-loop for i from 0 for ref in (org-cite-get-references citation) do
 	     ;; Only prefixes on the first citation are actually supported.
 	     ;; And it will be concatenated with the global prefix.
