@@ -59,7 +59,8 @@
     ("/bcf" . "\\Citealp*")
     ("/f" . "\\citep*")
     ("/c" . "\\Citep")
-    ("/cf" . "\\Citep*"))
+    ("/cf" . "\\Citep*")
+    (nil . "\\cite"))
   "Styles for natbib citations.
 See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf
 
