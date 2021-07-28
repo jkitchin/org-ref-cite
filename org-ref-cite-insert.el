@@ -179,6 +179,12 @@ Argument ARG prefix arg."
 		  "/t")
 		(concat "@" select-key)))))))
 
+
+(org-cite-register-processor 'org-ref-cite-insert
+  :insert #'org-ref-cite-insert-processor)
+
+
+
 (provide 'org-ref-cite-insert)
 
 ;;; org-ref-cite-insert.el ends here
