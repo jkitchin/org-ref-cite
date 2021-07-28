@@ -307,6 +307,69 @@ Suppose you want to add a new style called "locators/bare" and map it to the lat
 #+RESULTS:
 : ((locators/bare . \textcite) (t . \cite) (p . \citep) (num . \citenum) (a . \citeauthor) (a/f . \citeauthor*) (a/c . \Citeauthor) (a/cf . \Citeauthor*) (na/b . \citeyear) (na . \citeyearpar) (nocite . \nocite) (t/b . \citealt) (t/f . \citet*) (t/bf . \citealt*) (t/c . \Citet) (t/cf . \Citet*) (t/bc . \Citealt) (t/bcf . \Citealt*) (/b . \citealp) (/bf . \citealp*) (/bc . \Citealp) (/bcf . \Citealp*) (/f . \citep*) (/c . \Citep) (/cf . \Citep*))
 
+** Modifying the activation of citations
+
+The activation of citations in org-ref-cite is done by a list of function defined in =org-ref-cite-activation-functions=. You can modify this list as you see fit in your init files.
+
+#+BEGIN_SRC emacs-lisp
+org-ref-cite-activation-functions
+#+END_SRC
+
+#+RESULTS:
+| org-cite-basic-activate | org-ref-cite-activate-keymap | org-ref-cite-activate-style-fontification | org-ref-cite-activate-prefix-suffix |
+
+** I don't use ivy but I want to use org-ref-cite
+
+No problem, just use a different insert processor. You could make one like this that uses the oc-basic key completer, but the org-ref-cite style selector.
+
+#+BEGIN_SRC emacs-lisp
+(require 'oc-basic)
+(org-cite-register-processor 'my-inserter
+  :insert (org-cite-make-insert-processor #'org-cite-basic--complete-key #'org-ref-cite-select-style))
+
+(setq org-cite-insert-processor 'my-inserter)
+#+END_SRC
+
+Suppose you just want a completing-read using bibtex-completion for candidates. Here is a function that can be used instead of org-cite-basic--complete-key.
+
+#+BEGIN_SRC emacs-lisp
+(defun my--complete-key (&optional multiple)
+  "Prompt for a reference key and return a citation reference string.
+
+When optional argument MULTIPLE is non-nil, prompt for multiple keys, until one
+of them is nil.  Then return the list of reference strings selected.
+
+Raise an error when no bibliography is set in the buffer."
+  (let* ((table (bibtex-completion-candidates))
+         (prompt
+          (lambda (text)
+            (completing-read text table nil t))))
+    (if (null multiple)
+        (let ((key (cdr (assoc "=key=" (cdr (assoc (funcall prompt "Key: ") table))))))
+          (org-string-nw-p key))
+      (let* ((keys nil)
+             (build-prompt
+              (lambda ()
+                (if keys
+                    (format "Key (\"\" to exit) %s: "
+                            (mapconcat #'identity (reverse keys) ";"))
+                  "Key (\"\" to exit): "))))
+        (let ((key (funcall prompt (funcall build-prompt))))
+          (while (org-string-nw-p key)
+            (push (cdr (assoc "=key=" (cdr (assoc key table)))) keys)
+            (setq key (funcall prompt (funcall build-prompt)))))
+        keys))))
+
+(org-cite-register-processor 'my-inserter
+  :insert (org-cite-make-insert-processor #'my--complete-key #'org-ref-cite-select-style))
+
+(setq org-cite-insert-processor 'my-inserter)
+#+END_SRC
+
+#+RESULTS:
+: my-inserter
+
+[cite:@tao-2021-nanop-synth;@lin-2021-exper-theor]
 
 * Dependencies
 
