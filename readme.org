@@ -94,7 +94,7 @@ The default cite type I use is cite/t, which I recommend to avoid conflicts with
 
 With a single prefix arg, you will be prompted to choose a reference and a style: [cite/num:@rose-2019-pybliom].
 
-[cite/t/berfdsar:@rose-2019-pybliom]
+[cite/t/b:@rose-2019-pybliom]
 
 ** Multiple insertions
 

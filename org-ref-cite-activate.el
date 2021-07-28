@@ -66,9 +66,19 @@
   "Color for invalid prefix/suffixes in multireference citations."
   :group 'org-ref-cite)
 
+
 (defcustom org-ref-cite-invalid-style-color
   "red"
   "Color for invalid styles that are not defined in `org-ref-cite-styles'."
+  :group 'org-ref-cite)
+
+
+(defcustom org-ref-cite-activation-functions
+  '(org-cite-basic-activate
+    org-ref-cite-activate-keymap
+    org-ref-cite-activate-style-fontification
+    org-ref-cite-activate-prefix-suffix)
+  "List of activation functions for a citation."
   :group 'org-ref-cite)
 
 
@@ -76,15 +86,14 @@
   `((t (:inherit org-cite :foreground ,org-ref-cite-invalid-prefix-suffix-color)))
   "Face for invalid prefix/suffix text in multireference citations")
 
+
 (defface org-ref-cite-invalid-style-face
   `((t (:inherit org-cite :foreground ,org-ref-cite-invalid-style-color)))
   "Face for invalid prefix/suffix text in multireference citations")
 
 
-(defun org-ref-cite-activate (citation)
-  "Add a keymap to cites.
-Argument CITATION is an org-element holding the references."
-  (org-cite-basic-activate citation)
+(defun org-ref-cite-activate-keymap (citation)
+  "Activation function for CITATION to add keymap and tooltip"
   (pcase-let ((`(,beg . ,end) (org-cite-boundaries citation)))
     ;; Put the keymap on a citation
     (put-text-property beg end 'keymap org-ref-cite-citation-keymap)
@@ -102,10 +111,11 @@ Argument CITATION is an org-element holding the references."
 				 (buffer-substring
 				  (org-element-property :begin context)
 				  (org-element-property :end context))
-				 'latex t)))))))
+				 'latex t))))))))
 
-  ;; this only applies to org-ref-cite and natbib. biblatex is more flexible
-  ;; than these ones.
+
+(defun org-ref-cite-activate-style-fontification (citation)
+  "Activation function for CITATION to fontify invalid styles"
   (when  (member (cl-second (assoc 'latex org-cite-export-processors))
 		 '(org-ref-cite natbib))
     ;; Check the style
@@ -114,7 +124,16 @@ Argument CITATION is an org-element holding the references."
        (org-element-property :begin citation)
        (1- (org-with-point-at (org-element-property :begin citation) (search-forward ":")))
        '(face org-ref-cite-invalid-style-face help-echo
-	      "This style is not supported in org-ref-cite.")))
+	      "This style is not supported in org-ref-cite.")))))
+
+
+
+(defun org-ref-cite-activate-prefix-suffix (citation)
+  "Activation for CITATION to fontify prefix/suffix text that will be ignored."
+  ;; this only applies to org-ref-cite and natbib. biblatex is more flexible
+  ;; than these ones.
+  (when  (member (cl-second (assoc 'latex org-cite-export-processors))
+		 '(org-ref-cite natbib))
     (cl-loop for i from 0 for ref in (org-cite-get-references citation) do
 	     ;; Only prefixes on the first citation are actually supported.
 	     ;; And it will be concatenated with the global prefix.
@@ -138,7 +157,17 @@ Argument CITATION is an org-element holding the references."
 			    (cl-third (org-cite-make-paragraph
 				       (org-element-property :suffix ref))))))
 		(org-element-property :end ref)
-		'(face org-ref-cite-invalid-prefix-suffix-face help-echo "Suffix text is not valid here and will be ignored in export."))))))
+		'(face org-ref-cite-invalid-prefix-suffix-face help-echo
+		       "Suffix text is not valid here and will be ignored in export."))))))
+
+
+(defun org-ref-cite-activate (citation)
+  "Add a keymap to cites.
+Argument CITATION is an org-element holding the references."
+  (cl-loop for activate-func in org-ref-cite-activation-functions
+	   do
+	   (funcall activate-func citation)))
+
 
 (org-cite-register-processor 'org-ref-cite-activate
   :activate #'org-ref-cite-activate)
