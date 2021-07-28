@@ -17,8 +17,6 @@ This directory contains org-ref-cite. It is a setup derived from oc-natbib.el th
 10. Customizable print_bibliography keyword
 
 
-
-
 This document on its own is not as useful as the video that shows how I used it. You can see a video of this in action here:
 
 Version 3: https://www.youtube.com/watch?v=puZMxooyDms
@@ -96,7 +94,7 @@ The default cite type I use is cite/t, which I recommend to avoid conflicts with
 
 With a single prefix arg, you will be prompted to choose a reference and a style: [cite/num:@rose-2019-pybliom].
 
-[cite/t/b:@rose-2019-pybliom]
+[cite/t/berfdsar:@rose-2019-pybliom]
 
 ** Multiple insertions
 
@@ -274,6 +272,40 @@ org-ref-cite provides some utility functions:
 - =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom]
 
 
+* Customizing org-ref-cite
+
+** Adding new styles
+
+The cite styles are set in =org-ref-cite-styles= as a list of cons cells (style . latexcmd). You can add whatever styles you want to this if you need more styles, e.g. if you want to use the insert processor from this library, but the export processor for csl or biblatex.
+
+#+BEGIN_SRC emacs-lisp
+org-ref-cite-styles
+#+END_SRC
+
+#+RESULTS:
+: ((t . \cite) (p . \citep) (num . \citenum) (a . \citeauthor) (a/f . \citeauthor*) (a/c . \Citeauthor) (a/cf . \Citeauthor*) (na/b . \citeyear) (na . \citeyearpar) (nocite . \nocite) (t/b . \citealt) (t/f . \citet*) (t/bf . \citealt*) (t/c . \Citet) (t/cf . \Citet*) (t/bc . \Citealt) (t/bcf . \Citealt*) (/b . \citealp) (/bf . \citealp*) (/bc . \Citealp) (/bcf . \Citealp*) (/f . \citep*) (/c . \Citep) (/cf . \Citep*))
+
+Say you want to add biblatex styles. Here is a way to generate the list. First, here are the available styles. The idea here is you will
+
+#+BEGIN_SRC emacs-lisp
+(org-cite-processor-cite-styles (org-cite--get-processor 'biblatex))
+#+END_SRC
+
+#+RESULTS:
+| (author a)    | (caps c) | (full f) | (caps-full cf) |
+| (locators l)  | (bare b) | (caps c) | (bare-caps bc) |
+| (noauthor na) |          |          |                |
+| (text t)      | (caps c) |          |                |
+| (nil)         | (bare b) | (caps c) | (bare-caps bc) |
+
+Suppose you want to add a new style called "locators/bare" and map it to the latex command =\textcite=. Just add it to the styles like this, and it will be immediately available in the style selector, and in export.
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'org-ref-cite-styles '("locators/bare" . "\\textcite"))
+#+END_SRC
+
+#+RESULTS:
+: ((locators/bare . \textcite) (t . \cite) (p . \citep) (num . \citenum) (a . \citeauthor) (a/f . \citeauthor*) (a/c . \Citeauthor) (a/cf . \Citeauthor*) (na/b . \citeyear) (na . \citeyearpar) (nocite . \nocite) (t/b . \citealt) (t/f . \citet*) (t/bf . \citealt*) (t/c . \Citet) (t/cf . \Citet*) (t/bc . \Citealt) (t/bcf . \Citealt*) (/b . \citealp) (/bf . \citealp*) (/bc . \Citealp) (/bcf . \Citealp*) (/f . \citep*) (/c . \Citep) (/cf . \Citep*))
 
 
 * Dependencies
