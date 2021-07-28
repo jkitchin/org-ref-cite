@@ -318,9 +318,9 @@ org-ref-cite-activation-functions
 #+RESULTS:
 | org-cite-basic-activate | org-ref-cite-activate-keymap | org-ref-cite-activate-style-fontification | org-ref-cite-activate-prefix-suffix |
 
-** I don't use ivy but I want to use org-ref-cite
+** I don't use ivy and want a different insert processor
 
-No problem, just use a different insert processor. You could make one like this that uses the oc-basic key completer, but the org-ref-cite style selector.
+No problem, just make a different insert processor. You could make one like this that uses the oc-basic key completer, but the org-ref-cite style selector. I find the basic key completer too slow on large bibliography files.
 
 #+BEGIN_SRC emacs-lisp
 (require 'oc-basic)
@@ -330,16 +330,14 @@ No problem, just use a different insert processor. You could make one like this 
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
-Suppose you just want a completing-read using bibtex-completion for candidates. Here is a function that can be used instead of org-cite-basic--complete-key.
+Suppose you just want a completing-read compatible inserter using bibtex-completion for candidates. Here is a function that can be used instead of org-cite-basic--complete-key.
 
 #+BEGIN_SRC emacs-lisp
 (defun my--complete-key (&optional multiple)
   "Prompt for a reference key and return a citation reference string.
 
 When optional argument MULTIPLE is non-nil, prompt for multiple keys, until one
-of them is nil.  Then return the list of reference strings selected.
-
-Raise an error when no bibliography is set in the buffer."
+of them is nil.  Then return the list of reference strings selected."
   (let* ((table (bibtex-completion-candidates))
          (prompt
           (lambda (text)
@@ -369,7 +367,7 @@ Raise an error when no bibliography is set in the buffer."
 #+RESULTS:
 : my-inserter
 
-[cite:@tao-2021-nanop-synth;@lin-2021-exper-theor]
+Now you are all set, no ivy dependency required.
 
 * Dependencies
 
