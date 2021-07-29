@@ -560,10 +560,13 @@ bibtex-completion-candidates."
 									 'face 'org-ref-cite-annotate-cite-key-face)))))
 				     (cycle-sort-function . identity)
 				     (display-sort-function . identity)
-				     (group-function . identity))
+				     (group-function . (lambda (key transform)
+							 (if transform
+							     key
+							   (substring s 0 1)))))
 				 (complete-with-action action table str pred)))))))
     (if (null multiple)
-	(org-string-nw-p key)
+	(org-string-nw-p (funcall prompt "Key: "))
       (let* ((keys nil)
              (build-prompt
 	      (lambda ()
@@ -576,6 +579,7 @@ bibtex-completion-candidates."
             (push key keys)
             (setq key (funcall prompt (funcall build-prompt)))))
         keys))))
+
 
 (provide 'org-ref-cite-core)
 
