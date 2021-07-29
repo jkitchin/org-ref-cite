@@ -330,44 +330,23 @@ No problem, just make a different insert processor. You could make one like this
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
-Suppose you just want a completing-read compatible inserter using bibtex-completion for candidates. Here is a function that can be used instead of org-cite-basic--complete-key.
+Suppose you just want a completing-read compatible inserter using bibtex-completion for candidates. =org-ref-cite= provides a function that can be used instead of org-cite-basic--complete-key.
 
 #+BEGIN_SRC emacs-lisp
-(defun my--complete-key (&optional multiple)
-  "Prompt for a reference key and return a citation reference string.
-
-When optional argument MULTIPLE is non-nil, prompt for multiple keys, until one
-of them is nil.  Then return the list of reference strings selected."
-  (let* ((table (bibtex-completion-candidates))
-         (prompt
-          (lambda (text)
-            (completing-read text table nil t))))
-    (if (null multiple)
-        (let ((key (cdr (assoc "=key=" (cdr (assoc (funcall prompt "Key: ") table))))))
-          (org-string-nw-p key))
-      (let* ((keys nil)
-             (build-prompt
-              (lambda ()
-                (if keys
-                    (format "Key (\"\" to exit) %s: "
-                            (mapconcat #'identity (reverse keys) ";"))
-                  "Key (\"\" to exit): "))))
-        (let ((key (funcall prompt (funcall build-prompt))))
-          (while (org-string-nw-p key)
-            (push (cdr (assoc "=key=" (cdr (assoc key table)))) keys)
-            (setq key (funcall prompt (funcall build-prompt)))))
-        keys))))
-
 (org-cite-register-processor 'my-inserter
-  :insert (org-cite-make-insert-processor #'my--complete-key #'org-ref-cite-select-style))
+ :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key
+					 #'org-ref-cite-select-style))
 
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
-#+RESULTS:
-: my-inserter
+Now you are all set, you get bibtex-completion candidates and no ivy dependency required.
 
-Now you are all set, no ivy dependency required.
+If you use helm you press return to select candidates, and then you have to press C-S-return to end the selection and insert the candidates.
+
+If you use ivy-mode you still type return to select candidates, but you have to press C-M-return to end the selection and insert the candidates.
+
+If you use vanilla emacs on this, it is very tedious. You have to press Tab to see any candidates, use arrows to get to the one you want, press return to select it, repeat for additional candidates, and then press return at the end to insert them. If you have a lot of candidates, you really need something like helm/ivy/selectrum, etc. to help with the selection.
 
 * Dependencies
 

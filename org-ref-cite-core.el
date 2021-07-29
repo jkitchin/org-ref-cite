@@ -424,6 +424,45 @@ This is intended for use in fixing bad keys, but would work for similar keys."
   (call-interactively 'kill-ring-save))
 
 
+;; * a minimal inserter
+
+(defun org-ref-cite--complete-key (&optional multiple)
+  "Prompt for a reference key and return a citation reference string.
+
+When optional argument MULTIPLE is non-nil, prompt for multiple keys, until one
+of them is nil.  Then return the list of reference strings selected.
+
+This uses bibtex-completion and is compatible with
+`org-cite-register-processor'. You can use it in an insert
+processor like this:
+
+ (org-cite-register-processor 'my-inserter
+  :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key
+					  #'org-ref-cite-select-style))
+
+ (setq org-cite-insert-processor 'my-inserter)"
+  (let* ((table (bibtex-completion-candidates))
+         (prompt
+          (lambda (text)
+            (completing-read text table nil t))))
+    (if (null multiple)
+        (let ((key (cdr (assoc "=key=" (cdr (assoc (funcall prompt "Key: ") table))))))
+          (org-string-nw-p key))
+      (let* ((keys nil)
+             (build-prompt
+              (lambda ()
+                (if keys
+                    (format "Key (\"\" to exit) %s: "
+                            (mapconcat #'identity (reverse keys) ";"))
+                  "Key (\"\" to exit): "))))
+        (let ((key (funcall prompt (funcall build-prompt))))
+          (while (org-string-nw-p key)
+            (push (cdr (assoc "=key=" (cdr (assoc key table)))) keys)
+            (setq key (funcall prompt (funcall build-prompt)))))
+        keys))))
+
+
+
 (provide 'org-ref-cite-core)
 
 ;;; org-ref-cite-core.el ends here
