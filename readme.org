@@ -346,6 +346,18 @@ Suppose you just want a completing-read compatible inserter using bibtex-complet
 #+RESULTS:
 : my-inserter
 
+If you use Emacs 28, you might prefer this instead, which supports annotation.
+
+#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
+(org-cite-register-processor 'my-inserter
+ :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key-28
+					 #'org-ref-cite-select-style))
+
+(setq org-cite-insert-processor 'my-inserter)
+#+END_SRC
+#+END_SRC
+
 Now you are all set, you get bibtex-completion candidates and no ivy dependency required, and the default insertion behavior of the org-cite library.
 
 The following notes are true for me:
