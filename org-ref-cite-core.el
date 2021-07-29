@@ -76,6 +76,14 @@ author."
   :group 'org-ref-cite)
 
 
+(defcustom org-ref-cite-style-annotation-function
+  #'org-ref-cite-annotate-style
+  "Function to annotate styles in selection.
+Two options are `org-ref-cite-basic-annotate-style', and
+`org-ref-cite-annotate-style'."
+  :group 'org-ref-cite)
+
+
 (defcustom org-ref-cite-default-citation-command "\\citet"
   "Default command for citations."
   :group 'org-ref-cite)
@@ -89,9 +97,10 @@ Defaults to `org-ref-cite-default-citation-command' if STYLE is not found"
   (or (cdr (assoc style org-ref-cite-styles)) org-ref-cite-default-citation-command))
 
 
-(defun org-ref-cite-annotate-style (s)
+(defun org-ref-cite-basic-annotate-style (s)
   "Annotation function for selecting style.
-Argument S The candidate string."
+Argument S The style candidate string.
+This annotator just looks up the cite LaTeX command for the style."
   (let* ((w (+  (- 5 (length s)) 20)))
     (concat (make-string w ? )
 	    (propertize
@@ -99,9 +108,17 @@ Argument S The candidate string."
 	     'face '(:foreground "forest green")))))
 
 
+(defun org-ref-cite-select-style ()
+  "Select a style with completion."
+  (interactive)
+  (let ((completion-extra-properties `(:annotation-function  ,org-ref-cite-style-annotation-function)))
+    (completing-read "Style: " org-ref-cite-styles)))
+
+
 (defun org-ref-cite-annotate-style (s)
   "Annotation function for selecting style.
-Argument S The candidate string."
+Argument S is the style string.
+This annotator makes an export preview of the citation with the style."
 
   (let* ((context (org-element-context))
 	 (citation (if (member (org-element-type context) '(citation))
@@ -137,13 +154,6 @@ Argument S The candidate string."
 	   export-string
 	   backend t)))
       'face '(:foreground "forest green")))))
-
-
-;; (defun org-ref-cite-select-style ()
-;;   "Select a style with completion."
-;;   (interactive)
-;;   (let ((completion-extra-properties '(:annotation-function  org-ref-cite-annotate-style)))
-;;     (completing-read "Style: " org-ref-cite-styles)))
 
 
 (defun org-ref-cite-update-style ()
