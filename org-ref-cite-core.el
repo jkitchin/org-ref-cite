@@ -91,6 +91,11 @@ Two options are `org-ref-cite-basic-annotate-style', and
 
 ;; * Style
 
+(defface org-ref-cite-annotate-style-face
+  `((t (:inherit org-cite)))
+  "Face for an annotated style.")
+
+
 (defun org-ref-cite--style-to-command (style)
   "Return command name to use according to STYLE.
 Defaults to `org-ref-cite-default-citation-command' if STYLE is not found"
@@ -105,7 +110,7 @@ This annotator just looks up the cite LaTeX command for the style."
     (concat (make-string w ? )
 	    (propertize
 	     (cdr (assoc s org-ref-cite-styles))
-	     'face '(:foreground "forest green")))))
+	     'face org-ref-cite-annotate-style-face))))
 
 
 (defun org-ref-cite-select-style ()
@@ -153,7 +158,7 @@ This annotator makes an export preview of the citation with the style."
 (org-trim (org-export-string-as
 	   export-string
 	   backend t)))
-      'face '(:foreground "forest green")))))
+      'face org-ref-cite-annotate-style-face))))
 
 
 (defun org-ref-cite-update-style ()
@@ -490,7 +495,7 @@ processor like this:
   :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key
 					  #'org-ref-cite-select-style))
 
- (setq org-cite-insert-processor 'my-inserter)"
+ (setq org-cite-insert-processor 'my-inserter)."
   (let* ((table (bibtex-completion-candidates))
          (prompt
           (lambda (text)
@@ -512,6 +517,65 @@ processor like this:
         keys))))
 
 
+(defface org-ref-cite-annotate-cite-key-face
+  `((t (:inherit org-cite)))
+  "Face for an annotated style.")
+
+
+(defun org-ref-cite--complete-key-28 (&optional multiple)
+  "Prompt for a reference key and return a citation reference string.
+
+When optional argument MULTIPLE is non-nil, prompt for multiple keys, until one
+of them is nil.  Then return the list of reference strings selected.
+
+This uses bibtex-completion and is compatible with
+`org-cite-register-processor'. You can use it in an insert
+processor like this:
+
+ (org-cite-register-processor 'my-inserter
+  :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key
+					  #'org-ref-cite-select-style))
+
+ (setq org-cite-insert-processor 'my-inserter
+
+This is an Emacs-28 compatible complete-key function. It provides
+annotation on a modified version of the
+bibtex-completion-candidates."
+
+  (let* ((table (cl-loop for candidate in (bibtex-completion-candidates) collect
+			 (append (list (cdr (assoc "=key=" candidate)))
+				 candidate)))
+         (prompt
+          (lambda (text)
+	    (completing-read "Select: "
+			     (lambda (str pred action)
+			       (if (eq action 'metadata)
+				   `(metadata
+				     ;; I use this closure since we need the table to do the annotation.
+				     (annotation-function . (lambda (s)
+							      (let ((w (+  (- 5 (length s)) 30)))
+								(concat (make-string w ? )
+									(propertize
+									 (cl-second (assoc s table))
+									 'face 'org-ref-cite-annotate-cite-key-face)))))
+				     (cycle-sort-function . identity)
+				     (display-sort-function . identity)
+				     (group-function . identity))
+				 (complete-with-action action table str pred)))))))
+    (if (null multiple)
+	(org-string-nw-p key)
+      (let* ((keys nil)
+             (build-prompt
+	      (lambda ()
+                (if keys
+                    (format "Key (\"\" to exit) %s: "
+                            (mapconcat #'identity (reverse keys) ";"))
+                  "Key (\"\" to exit): "))))
+        (let ((key (funcall prompt (funcall build-prompt))))
+          (while (org-string-nw-p key)
+            (push key keys)
+            (setq key (funcall prompt (funcall build-prompt)))))
+        keys))))
 
 (provide 'org-ref-cite-core)
 
