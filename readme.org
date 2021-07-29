@@ -72,9 +72,9 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
    org-cite-insert-processor 'org-ref-cite
    org-cite-follow-processor 'org-ref-cite
    org-cite-activate-processor 'org-ref-cite
-   org-cite-export-processors '((html csl "chicago-author-date-16th-edition.csl")
-			       (latex org-ref-cite)
-			       (t (basic numeric))))
+   org-cite-export-processors '((html csl "elsevier-with-titles.csl")
+			        (latex org-ref-cite)
+			        (t basic)))
 
   (define-key org-mode-map (kbd "C-c \\") 'org-cite-insert))
 
@@ -82,6 +82,7 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
        flyspell-mark-duplications-flag nil
        warning-minimum-level :error)
 #+END_SRC
+
 
 * Examples of usage
 
@@ -95,6 +96,7 @@ The default cite type I use is cite/t, which I recommend to avoid conflicts with
 With a single prefix arg, you will be prompted to choose a reference and a style: [cite/num:@rose-2019-pybliom].
 
 [cite/t/b:@rose-2019-pybliom]
+
 
 ** Multiple insertions
 
@@ -210,7 +212,7 @@ A citet should get moved past punctuation if you also use natmove a textual cita
 After that, you just do a regular export, e.g. C-c C-e lo to make and open a pdf. Of course you need your LaTeX setup working. Mine is customized for scimax, but as long as yours calls pdflatex and bibtex in the right order, and the right number of times it should work for you too, and it also handles building the bibliography when nobibliography is used.
 
 #+BEGIN_SRC emacs-lisp
- org-latex-pdf-process
+org-latex-pdf-process
 #+END_SRC
 
 #+RESULTS:
@@ -245,8 +247,8 @@ org-ref-cite provides some utility functions:
 	 (format "- =[cite/%s:@rose-2019-pybliom]= (%s) [cite/%s:@rose-2019-pybliom]\n" s (substring cmd 1) s))
 #+END_SRC
 
-#+RESULTS:
-- =[cite/t:@rose-2019-pybliom]= (citet) [cite/t:@rose-2019-pybliom]
+
+- =[cite/t:@rose-2019-pybliom]= (cite) [cite/t:@rose-2019-pybliom]
 - =[cite/p:@rose-2019-pybliom]= (citep) [cite/p:@rose-2019-pybliom]
 - =[cite/num:@rose-2019-pybliom]= (citenum) [cite/num:@rose-2019-pybliom]
 - =[cite/a:@rose-2019-pybliom]= (citeauthor) [cite/a:@rose-2019-pybliom]
@@ -270,6 +272,7 @@ org-ref-cite provides some utility functions:
 - =[cite//f:@rose-2019-pybliom]= (citep*) [cite//f:@rose-2019-pybliom]
 - =[cite//c:@rose-2019-pybliom]= (Citep) [cite//c:@rose-2019-pybliom]
 - =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom]
+
 
 
 * Customizing org-ref-cite
@@ -340,13 +343,18 @@ Suppose you just want a completing-read compatible inserter using bibtex-complet
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
-Now you are all set, you get bibtex-completion candidates and no ivy dependency required.
+#+RESULTS:
+: my-inserter
 
-If you use helm you press return to select candidates, and then you have to press C-S-return to end the selection and insert the candidates.
+Now you are all set, you get bibtex-completion candidates and no ivy dependency required, and the default insertion behavior of the org-cite library.
 
-If you use ivy-mode you still type return to select candidates, but you have to press C-M-return to end the selection and insert the candidates.
+The following notes are true for me:
 
-If you use vanilla emacs on this, it is very tedious. You have to press Tab to see any candidates, use arrows to get to the one you want, press return to select it, repeat for additional candidates, and then press return at the end to insert them. If you have a lot of candidates, you really need something like helm/ivy/selectrum, etc. to help with the selection.
+1. If you use helm you press return to select candidates, and then you have to press C-S-return to end the selection and insert the candidates.
+
+2. If you use ivy-mode you still type return to select candidates, but you have to press C-M-return to end the selection and insert the candidates.
+
+3. If you use vertico or vanilla emacs on this, it is very tedious. You have to press Tab to see any candidates, use arrows to get to the one you want, press return to select it, repeat for additional candidates, and then press return at the end to insert them. If you have a lot of candidates, you really need something like helm/ivy/selectrum/etc. to help with the selection.
 
 * Dependencies
 
@@ -367,7 +375,7 @@ Technically, this depends on bibtex-completion because of the =org-ref-cite-sort
 
 - Many follow functions depend on bibtex-completion functions
 - One depends on biblio
--
+
 
 I don't think anything will break if you don't use those.
 
