@@ -99,11 +99,51 @@ Argument S The candidate string."
 	     'face '(:foreground "forest green")))))
 
 
-(defun org-ref-cite-select-style ()
-  "Select a style with completion."
-  (interactive)
-  (let ((completion-extra-properties '(:annotation-function  org-ref-cite-annotate-style)))
-    (completing-read "Style: " org-ref-cite-styles)))
+(defun org-ref-cite-annotate-style (s)
+  "Annotation function for selecting style.
+Argument S The candidate string."
+
+  (let* ((context (org-element-context))
+	 (citation (if (member (org-element-type context) '(citation))
+		       context
+		     (org-element-property :parent context)))
+	 (references (org-cite-get-references citation))
+	 (cite-string (format "[cite/%s:%s]"
+			      s
+			      (org-element-interpret-data references)))
+	 (cite-export (cadr (assoc "CITE_EXPORT"
+				   (org-collect-keywords
+				    '("CITE_EXPORT")))))
+	 (org-cite-proc (when cite-export
+			  (cl-first (split-string cite-export))))
+	 (backend (if cite-export
+		      (cl-loop for (backend ep _) in org-cite-export-processors
+			       when (equal ep (intern-soft cite-export))
+			       return backend)
+		    'latex))
+	 (export-string (concat
+			 (if cite-export
+			     (concat (format "#+cite_export: %s\n" cite-export))
+			   "")
+			 cite-string)))
+    (when (string= "nil" backend) (setq backend 'latex))
+    (concat
+     (make-string (+  (- 5 (length s)) 20) ? )
+     (propertize
+      ;; I think these should be one line.
+      (replace-regexp-in-string "
+" ""
+(org-trim (org-export-string-as
+	   export-string
+	   backend t)))
+      'face '(:foreground "forest green")))))
+
+
+;; (defun org-ref-cite-select-style ()
+;;   "Select a style with completion."
+;;   (interactive)
+;;   (let ((completion-extra-properties '(:annotation-function  org-ref-cite-annotate-style)))
+;;     (completing-read "Style: " org-ref-cite-styles)))
 
 
 (defun org-ref-cite-update-style ()
