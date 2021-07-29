@@ -99,6 +99,7 @@
     ;; Put the keymap on a citation
     (put-text-property beg end 'keymap org-ref-cite-citation-keymap)))
 
+
 (defun org-ref-cite-activate-tooltip (citation)
   "Put a tooltip on the citation.
 The exports the citation according to the backend defined in
@@ -113,12 +114,23 @@ CITE_EXPORT keyword, and defaults to the latex backend."
      'help-echo (lambda (window object position)
 		  (with-selected-window window
 		    (goto-char position)
-		    (let ((context (org-element-context)))
+		    (let* ((cite-export (cl-first (split-string
+						   (or (cadr (assoc "CITE_EXPORT"
+								    (org-collect-keywords
+								     '("CITE_EXPORT"))))
+						       ""))))
+			   (backend (if cite-export
+					(cl-loop for (backend ep _) in org-cite-export-processors
+						 when (equal ep (intern-soft cite-export))
+						 return backend)
+				      'latex))
+			   (context (org-element-context)))
+		      (when (string= "nil" backend) (setq backend 'ascii))
 		      (org-trim (org-export-string-as
 				 (buffer-substring
 				  (org-element-property :begin context)
 				  (org-element-property :end context))
-				 'latex t))))))))
+				 backend t))))))))
 
 
 (defun org-ref-cite-activate-style-fontification (citation)
