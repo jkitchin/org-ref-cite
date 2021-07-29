@@ -105,8 +105,27 @@ This annotator just looks up the cite LaTeX command for the style."
     (concat (make-string w ? )
 	    (propertize
 	     (cdr (assoc s org-ref-cite-styles))
-	     'face '(:foreground "forest green")))))
+	     'face 'org-ref-cite-preview-face))))
 
+(defun org-ref-cite-group-styles (style transform)
+  "Return group title of STYLE or TRANSFORM the candidate.
+This is a group-function that groups org-cite style/variant
+strings by style."
+    (let* ((style-str (string-trim style))
+           (short-style
+            (if (string-match "^/[bcf]*" style-str) "default"
+              (car (split-string style-str "/")))))
+    (if transform
+        ;; Use the candidate string as is, but add back whitespace alignment.
+        (concat "  " (truncate-string-to-width style-str 20 nil 32))
+      ;; Transform for grouping and display.
+      (cond
+       ((string= short-style "default") "Default")
+       ((string= short-style "author") "Author-Only")
+       ((string= short-style "locators") "Locators-Only")
+       ((string= short-style "text") "Textual/Narrative")
+       ((string= short-style "nocite") "No Cite")
+       ((string= short-style "noauthor") "Suppress Author")))))
 
 (defun org-ref-cite-select-style ()
   "Select a style with completion."
