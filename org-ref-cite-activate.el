@@ -114,22 +114,27 @@ CITE_EXPORT keyword, and defaults to the latex backend."
      'help-echo (lambda (window object position)
 		  (with-selected-window window
 		    (goto-char position)
-		    (let* ((cite-export (cl-first (split-string
-						   (or (cadr (assoc "CITE_EXPORT"
-								    (org-collect-keywords
-								     '("CITE_EXPORT"))))
-						       ""))))
+		    (let* ((context (org-element-context))
+			   (cite-string (buffer-substring
+					 (org-element-property :begin context)
+					 (org-element-property :end context)))
+			   (cite-export (cadr (assoc "CITE_EXPORT"
+						     (org-collect-keywords
+						      '("CITE_EXPORT")))))
+			   (org-cite-proc (when cite-export
+					    (cl-first (split-string cite-export))))
 			   (backend (if cite-export
 					(cl-loop for (backend ep _) in org-cite-export-processors
 						 when (equal ep (intern-soft cite-export))
 						 return backend)
-				      'latex))
-			   (context (org-element-context)))
-		      (when (string= "nil" backend) (setq backend 'ascii))
+				      'latex)))
+		      (when (string= "nil" backend) (setq backend 'latex))
 		      (org-trim (org-export-string-as
-				 (buffer-substring
-				  (org-element-property :begin context)
-				  (org-element-property :end context))
+				 (concat
+				  (if cite-export
+				      (concat (format "#+cite_export: %s\n" cite-export))
+				    "")
+				  cite-string)
 				 backend t))))))))
 
 
