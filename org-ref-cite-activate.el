@@ -76,6 +76,7 @@
 (defcustom org-ref-cite-activation-functions
   '(org-cite-basic-activate
     org-ref-cite-activate-keymap
+    org-ref-cite-activate-tooltip
     org-ref-cite-activate-style-fontification
     org-ref-cite-activate-prefix-suffix)
   "List of activation functions for a citation."
@@ -96,7 +97,13 @@
   "Activation function for CITATION to add keymap and tooltip"
   (pcase-let ((`(,beg . ,end) (org-cite-boundaries citation)))
     ;; Put the keymap on a citation
-    (put-text-property beg end 'keymap org-ref-cite-citation-keymap)
+    (put-text-property beg end 'keymap org-ref-cite-citation-keymap)))
+
+(defun org-ref-cite-activate-tooltip (citation)
+  "Put a tooltip on the citation.
+The exports the citation according to the backend defined in
+CITE_EXPORT keyword, and defaults to the latex backend."
+  (pcase-let* ((`(,beg . ,end) (org-cite-boundaries citation)))
     ;; put a rendered tooltip on the style part. Note that this assumes a latex
     ;; export.
     (put-text-property
