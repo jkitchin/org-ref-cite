@@ -91,12 +91,7 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
 
 You should never type citations by hand; it is tedious and error-prone. I use C-c \ to insert a citation: [cite/t:@kitchin-2018-machin-learn-catal]
 
-The default cite type I use is cite/t, which I recommend to avoid conflicts with the cite links of org-ref. At the moment, org-mode sometimes recognize a bare citation as an org link if you have installed org-ref.
-
 With a single prefix arg, you will be prompted to choose a reference and a style: [cite/num:@rose-2019-pybliom].
-
-[cite/t/b:@rose-2019-pybliom]
-
 
 ** Multiple insertions
 
