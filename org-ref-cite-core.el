@@ -563,7 +563,7 @@ bibtex-completion-candidates."
 				     (group-function . (lambda (key transform)
 							 (if transform
 							     key
-							   (substring s 0 1)))))
+							   (substring key  0 1)))))
 				 (complete-with-action action table str pred)))))))
     (if (null multiple)
 	(org-string-nw-p (funcall prompt "Key: "))
