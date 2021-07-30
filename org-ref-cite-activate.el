@@ -120,6 +120,7 @@ CITE_EXPORT keyword, and defaults to the latex backend."
 			   (cite-string (buffer-substring
 					 (org-element-property :begin context)
 					 (org-element-property :end context)))
+			   ;; #+cite_export: name bibliography-style citation-style
 			   (cite-export (cadr (assoc "CITE_EXPORT"
 						     (org-collect-keywords
 						      '("CITE_EXPORT")))))
@@ -127,10 +128,12 @@ CITE_EXPORT keyword, and defaults to the latex backend."
 					    (cl-first (split-string cite-export))))
 			   (backend (if cite-export
 					(cl-loop for (backend ep _) in org-cite-export-processors
-						 when (equal ep (intern-soft cite-export))
+						 when (equal ep (intern-soft org-cite-proc))
 						 return backend)
 				      org-ref-cite-default-preview-backend)))
-		      (when (string= "nil" backend) (setq backend org-ref-cite-default-preview-backend))
+		      (when (or (string= "nil" backend)
+				(equal backend t))
+			(setq backend org-ref-cite-default-preview-backend))
 		      (org-trim (org-export-string-as
 				 (concat
 				  (if cite-export
