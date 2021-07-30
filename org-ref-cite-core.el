@@ -115,7 +115,8 @@ This is intended for use in registering a processor."
 (defun org-ref-cite-get-combinatorial-style-commands ()
   "Return the combinatorial possible styles and commands.
 Returns a list of elements like (STYLE . CMD) for every
-combination of the full and abbreviated names."
+combination of the full and abbreviated names. STYLE is a cons
+cell like org-cite uses (Main-style . variant)."
   (apply #'append
 	 (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
 		  collect
@@ -217,14 +218,29 @@ If point is on a citation, it makes an export preview of the citation with the s
 			     ;; Sort so shorter keys (abbreviations come first)
 			     (display-sort-function . (lambda (candidates)
 							(sort candidates (lambda (a b)
-									   (< (length a) (length b))))))
+									   (> (length a) (length b))))))
 			     ;; Group by the first letter.
 			     (group-function . (lambda (style transform)
 						 (if transform
 						     style
-						   (if (> (length style) 1)
-						       (substring style  0 1)
-						     "nil")))))
+						   ;; this is the group calculation
+						   (cond
+						    ((string= "" style)
+						     "Misc")
+						    ((string= "t" (substring style 0 1))
+						     "Text")
+						    ((string= "p" (substring style 0 1))
+						     "Parenthetical")
+						    ((string= "num" style)
+						     "Number")
+						    ((string= "a" (substring style 0 1))
+						     "Author")
+						    ((or (string= "no" (substring style 0 2))
+							 (string= "na" (substring style 0 2)))
+						     "No author")
+
+						    (t
+						     "Misc"))))))
 			 (complete-with-action action candidates str pred))))))
 
 

@@ -415,7 +415,8 @@ No problem, just make a different insert processor. You could make one like this
 #+BEGIN_SRC emacs-lisp :results silent
 (require 'oc-basic)
 (org-cite-register-processor 'my-inserter
-  :insert (org-cite-make-insert-processor #'org-cite-basic--complete-key #'org-ref-cite-select-style))
+  :insert (org-cite-make-insert-processor #'org-cite-basic--complete-key
+					  #'org-ref-cite-select-style))
 
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
@@ -538,15 +539,25 @@ Before going on MELPA:
 * Sandbox notes                                                    :noexport:
 
 #+BEGIN_SRC emacs-lisp
-(org-cite-supported-styles)
+(org-cite-supported-styles '(org-ref-cite))
 #+END_SRC
 
 #+RESULTS:
-| (noauthor na) | (caps c) | (bare-caps bc) | (bare b)            |          |                |          |
-| (nil)         | (full f) | (bare-full bf) | (bare-caps-full bf) | (caps c) | (bare-caps bc) | (bare b) |
-| (num)         |          |                |                     |          |                |          |
-| (nocite n)    |          |                |                     |          |                |          |
-| (author a)    | (full f) | (caps-full cf) | (caps c)            |          |                |          |
-| (text t)      | (bare b) | (full f)       | (bare-full bf bcf)  | (caps c) | (bare-caps bc) |          |
-| (note ft)     | (caps c) | (bare-caps bc) |                     |          |                |          |
-| (numeric nb)  |          |                |                     |          |                |          |
+| (nil)         |          |          |                |                |                |                      |
+| (num)         |          |          |                |                |                |                      |
+| (p)           | (bare b) | (caps c) | (full f)       | (bare-caps bc) | (bare-full bf) | (bare-caps-full bcf) |
+| (nocite)      |          |          |                |                |                |                      |
+| (noauthor na) | (bare b) |          |                |                |                |                      |
+| (author a)    | (caps c) | (full f) | (caps-full cf) |                |                |                      |
+| (text t)      | (bare b) | (caps c) | (full f)       | (caps-full cf) | (bare-caps bc) | (bare-full bf bcf)   |
+
+#+BEGIN_SRC emacs-lisp
+(defun test-select-style ()
+  "Select a style with completion."
+  (interactive)
+  (let ((candidates (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+			     collect
+			     (concat (car style)
+				     (when (cdr style) (format "/%s" (cdr style)))))))
+    (completing-read "Style: " candidates)))
+#+END_SRC
