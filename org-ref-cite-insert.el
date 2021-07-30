@@ -172,7 +172,7 @@ Argument ARG prefix arg."
 	     (insert key))))))
       (_
        (insert
-	(format "[cite/t:%s]" (concat "@" select-key)))
+	(format "[cite%s:%s]" org-ref-cite-default-style (concat "@" select-key)))
        (when arg
 	 (org-ref-cite-update-style)
 	 ( org-ref-cite-goto-cite-end))))))

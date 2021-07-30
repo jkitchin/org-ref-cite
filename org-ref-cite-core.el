@@ -58,7 +58,21 @@
     ;; miscellaneous
     ((("num")) . "\\citenum")
     (((nil)) . "\\cite"))
-  "Alist of styles and commands for `org-ref-cite'."
+  "Alist of styles and commands for `org-ref-cite'.
+Each style element is ((Main-style variants) . COMMAND).
+Main-style is a list of strings that match the main style.
+variants are a list of strings that match the variant.
+
+All combinations of the Main-style and variants map on to COMMAND
+at export."
+  :group 'org-ref-cite)
+
+
+(defcustom org-ref-cite-default-style
+  "/t"
+  "The default style to use when inserting citations.
+It should either be \"\" or start with a /.
+It should be a member of the output of `org-ref-cite-flat-style-strings')"
   :group 'org-ref-cite)
 
 
