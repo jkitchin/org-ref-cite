@@ -225,7 +225,7 @@ If point is on a citation, it makes an export preview of the citation with the s
 	 (cp (point)))
     (setf (buffer-substring (org-element-property :begin current-citation)
 			    (org-element-property :end current-citation))
-	  (format "[cite%s:%s]" (if (string= "nil" style)
+	  (format "[cite%s:%s]" (if (string= "" style)
 				    ""
 				  (concat "/" style))
 		  (org-element-interpret-data refs)))
