@@ -47,7 +47,7 @@
   :export-bibliography #'org-ref-cite-export-bibliography
   :export-citation #'org-ref-cite-export-citation
   :export-finalizer #'org-ref-cite-use-package
-  :cite-styles (mapcar 'car org-ref-cite-styles))
+  :cite-styles (org-ref-cite-get-cite-styles))
 
 (provide 'org-ref-cite)
 ;;; org-ref-cite.el ends here

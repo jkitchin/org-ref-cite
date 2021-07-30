@@ -24,8 +24,8 @@ Version 3: https://www.youtube.com/watch?v=puZMxooyDms
 
 These videos are from the version of this library that was oc-bibtex. They might be historically interesting.
 
-Version 1: https://www.youtube.com/watch?v=4ta4J20kpmM
-Version 2: https://www.youtube.com/watch?v=3TBYg1MZ6iY
+1. Version 1: https://www.youtube.com/watch?v=4ta4J20kpmM
+2. Version 2: https://www.youtube.com/watch?v=3TBYg1MZ6iY
 
 * setup
 
@@ -123,6 +123,7 @@ Scimax offers the following "enhancements" that are inspired from keybindings in
 | C-s   | show marked entries                                                   |
 
 [cite/t:@rose-2019-pybliom;@kitchin-2015-examp-effec]
+
 
 [cite/t:@rose-2019-pybliom;@kitchin-2015-examp-effec]
 
@@ -242,73 +243,164 @@ org-ref-cite provides some utility functions:
 
 * testing the styles
 
-#+BEGIN_SRC emacs-lisp
-(cl-loop for (s . cmd) in org-ref-cite-styles concat
-	 (format "- =[cite/%s:@rose-2019-pybliom]= (%s) [cite/%s:@rose-2019-pybliom]\n" s (substring cmd 1) s))
+#+BEGIN_SRC emacs-lisp :results org raw
+(cl-loop for (style . command) in
+	 (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+			  collect
+			  (cons
+			   (concat (car style)
+				   (when (cdr style) (format "/%s" (cdr style))))
+			   command))
+	 concat
+	 (format "- =[cite/%s:@rose-2019-pybliom]= (%s) [cite/%s:@rose-2019-pybliom]\n"
+		 style (substring command 1) style))
 #+END_SRC
 
-
-- =[cite/t:@rose-2019-pybliom]= (cite) [cite/t:@rose-2019-pybliom]
-- =[cite/p:@rose-2019-pybliom]= (citep) [cite/p:@rose-2019-pybliom]
-- =[cite/num:@rose-2019-pybliom]= (citenum) [cite/num:@rose-2019-pybliom]
-- =[cite/a:@rose-2019-pybliom]= (citeauthor) [cite/a:@rose-2019-pybliom]
-- =[cite/a/f:@rose-2019-pybliom]= (citeauthor*) [cite/a/f:@rose-2019-pybliom]
-- =[cite/a/c:@rose-2019-pybliom]= (Citeauthor) [cite/a/c:@rose-2019-pybliom]
-- =[cite/a/cf:@rose-2019-pybliom]= (Citeauthor*) [cite/a/cf:@rose-2019-pybliom]
-- =[cite/na/b:@rose-2019-pybliom]= (citeyear) [cite/na/b:@rose-2019-pybliom]
-- =[cite/na:@rose-2019-pybliom]= (citeyearpar) [cite/na:@rose-2019-pybliom]
-- =[cite/nocite:@rose-2019-pybliom]= (nocite) [cite/nocite:@rose-2019-pybliom]
+#+RESULTS:
+- =[cite/text:@rose-2019-pybliom]= (citet) [cite/text:@rose-2019-pybliom]
+- =[cite/t:@rose-2019-pybliom]= (citet) [cite/t:@rose-2019-pybliom]
+- =[cite/text/bare:@rose-2019-pybliom]= (citealt) [cite/text/bare:@rose-2019-pybliom]
+- =[cite/text/b:@rose-2019-pybliom]= (citealt) [cite/text/b:@rose-2019-pybliom]
+- =[cite/t/bare:@rose-2019-pybliom]= (citealt) [cite/t/bare:@rose-2019-pybliom]
 - =[cite/t/b:@rose-2019-pybliom]= (citealt) [cite/t/b:@rose-2019-pybliom]
-- =[cite/t/f:@rose-2019-pybliom]= (citet*) [cite/t/f:@rose-2019-pybliom]
-- =[cite/t/bf:@rose-2019-pybliom]= (citealt*) [cite/t/bf:@rose-2019-pybliom]
+- =[cite/text/caps:@rose-2019-pybliom]= (Citet) [cite/text/caps:@rose-2019-pybliom]
+- =[cite/text/c:@rose-2019-pybliom]= (Citet) [cite/text/c:@rose-2019-pybliom]
+- =[cite/t/caps:@rose-2019-pybliom]= (Citet) [cite/t/caps:@rose-2019-pybliom]
 - =[cite/t/c:@rose-2019-pybliom]= (Citet) [cite/t/c:@rose-2019-pybliom]
+- =[cite/text/full:@rose-2019-pybliom]= (citet*) [cite/text/full:@rose-2019-pybliom]
+- =[cite/text/f:@rose-2019-pybliom]= (citet*) [cite/text/f:@rose-2019-pybliom]
+- =[cite/t/full:@rose-2019-pybliom]= (citet*) [cite/t/full:@rose-2019-pybliom]
+- =[cite/t/f:@rose-2019-pybliom]= (citet*) [cite/t/f:@rose-2019-pybliom]
+- =[cite/text/caps-full:@rose-2019-pybliom]= (Citet*) [cite/text/caps-full:@rose-2019-pybliom]
+- =[cite/text/cf:@rose-2019-pybliom]= (Citet*) [cite/text/cf:@rose-2019-pybliom]
+- =[cite/t/caps-full:@rose-2019-pybliom]= (Citet*) [cite/t/caps-full:@rose-2019-pybliom]
 - =[cite/t/cf:@rose-2019-pybliom]= (Citet*) [cite/t/cf:@rose-2019-pybliom]
-- =[cite/t/bc:@rose-2019-pybliom]= (Citealt) [cite/t/bc:@rose-2019-pybliom]
+- =[cite/text/bare-caps:@rose-2019-pybliom]= (Citealt*) [cite/text/bare-caps:@rose-2019-pybliom]
+- =[cite/text/bc:@rose-2019-pybliom]= (Citealt*) [cite/text/bc:@rose-2019-pybliom]
+- =[cite/t/bare-caps:@rose-2019-pybliom]= (Citealt*) [cite/t/bare-caps:@rose-2019-pybliom]
+- =[cite/t/bc:@rose-2019-pybliom]= (Citealt*) [cite/t/bc:@rose-2019-pybliom]
+- =[cite/text/bare-full:@rose-2019-pybliom]= (citealt*) [cite/text/bare-full:@rose-2019-pybliom]
+- =[cite/text/bf:@rose-2019-pybliom]= (citealt*) [cite/text/bf:@rose-2019-pybliom]
+- =[cite/t/bare-full:@rose-2019-pybliom]= (citealt*) [cite/t/bare-full:@rose-2019-pybliom]
+- =[cite/t/bf:@rose-2019-pybliom]= (citealt*) [cite/t/bf:@rose-2019-pybliom]
+- =[cite/text/bare-full:@rose-2019-pybliom]= (Citealt*) [cite/text/bare-full:@rose-2019-pybliom]
+- =[cite/text/bcf:@rose-2019-pybliom]= (Citealt*) [cite/text/bcf:@rose-2019-pybliom]
+- =[cite/t/bare-full:@rose-2019-pybliom]= (Citealt*) [cite/t/bare-full:@rose-2019-pybliom]
 - =[cite/t/bcf:@rose-2019-pybliom]= (Citealt*) [cite/t/bcf:@rose-2019-pybliom]
-- =[cite//b:@rose-2019-pybliom]= (citealp) [cite//b:@rose-2019-pybliom]
-- =[cite//bf:@rose-2019-pybliom]= (citealp*) [cite//bf:@rose-2019-pybliom]
-- =[cite//bc:@rose-2019-pybliom]= (Citealp) [cite//bc:@rose-2019-pybliom]
-- =[cite//bcf:@rose-2019-pybliom]= (Citealp*) [cite//bcf:@rose-2019-pybliom]
-- =[cite//f:@rose-2019-pybliom]= (citep*) [cite//f:@rose-2019-pybliom]
-- =[cite//c:@rose-2019-pybliom]= (Citep) [cite//c:@rose-2019-pybliom]
-- =[cite//cf:@rose-2019-pybliom]= (Citep*) [cite//cf:@rose-2019-pybliom]
+- =[cite/author:@rose-2019-pybliom]= (citeauthor) [cite/author:@rose-2019-pybliom]
+- =[cite/a:@rose-2019-pybliom]= (citeauthor) [cite/a:@rose-2019-pybliom]
+- =[cite/author/caps:@rose-2019-pybliom]= (Citeauthor) [cite/author/caps:@rose-2019-pybliom]
+- =[cite/author/c:@rose-2019-pybliom]= (Citeauthor) [cite/author/c:@rose-2019-pybliom]
+- =[cite/a/caps:@rose-2019-pybliom]= (Citeauthor) [cite/a/caps:@rose-2019-pybliom]
+- =[cite/a/c:@rose-2019-pybliom]= (Citeauthor) [cite/a/c:@rose-2019-pybliom]
+- =[cite/author/full:@rose-2019-pybliom]= (citeauthor*) [cite/author/full:@rose-2019-pybliom]
+- =[cite/author/f:@rose-2019-pybliom]= (citeauthor*) [cite/author/f:@rose-2019-pybliom]
+- =[cite/a/full:@rose-2019-pybliom]= (citeauthor*) [cite/a/full:@rose-2019-pybliom]
+- =[cite/a/f:@rose-2019-pybliom]= (citeauthor*) [cite/a/f:@rose-2019-pybliom]
+- =[cite/author/caps-full:@rose-2019-pybliom]= (Citeauthor*) [cite/author/caps-full:@rose-2019-pybliom]
+- =[cite/author/cf:@rose-2019-pybliom]= (Citeauthor*) [cite/author/cf:@rose-2019-pybliom]
+- =[cite/a/caps-full:@rose-2019-pybliom]= (Citeauthor*) [cite/a/caps-full:@rose-2019-pybliom]
+- =[cite/a/cf:@rose-2019-pybliom]= (Citeauthor*) [cite/a/cf:@rose-2019-pybliom]
+- =[cite/noauthor:@rose-2019-pybliom]= (citeyearpar) [cite/noauthor:@rose-2019-pybliom]
+- =[cite/na:@rose-2019-pybliom]= (citeyearpar) [cite/na:@rose-2019-pybliom]
+- =[cite/noauthor/bare:@rose-2019-pybliom]= (citeyear) [cite/noauthor/bare:@rose-2019-pybliom]
+- =[cite/noauthor/b:@rose-2019-pybliom]= (citeyear) [cite/noauthor/b:@rose-2019-pybliom]
+- =[cite/na/bare:@rose-2019-pybliom]= (citeyear) [cite/na/bare:@rose-2019-pybliom]
+- =[cite/na/b:@rose-2019-pybliom]= (citeyear) [cite/na/b:@rose-2019-pybliom]
+- =[cite/nocite:@rose-2019-pybliom]= (nocite) [cite/nocite:@rose-2019-pybliom]
+- =[cite/p:@rose-2019-pybliom]= (citep) [cite/p:@rose-2019-pybliom]
+- =[cite/p/bare:@rose-2019-pybliom]= (citealp) [cite/p/bare:@rose-2019-pybliom]
+- =[cite/p/b:@rose-2019-pybliom]= (citealp) [cite/p/b:@rose-2019-pybliom]
+- =[cite/p/caps:@rose-2019-pybliom]= (Citep) [cite/p/caps:@rose-2019-pybliom]
+- =[cite/p/c:@rose-2019-pybliom]= (Citep) [cite/p/c:@rose-2019-pybliom]
+- =[cite/p/full:@rose-2019-pybliom]= (citep*) [cite/p/full:@rose-2019-pybliom]
+- =[cite/p/f:@rose-2019-pybliom]= (citep*) [cite/p/f:@rose-2019-pybliom]
+- =[cite/p/bare-caps:@rose-2019-pybliom]= (Citealp) [cite/p/bare-caps:@rose-2019-pybliom]
+- =[cite/p/bc:@rose-2019-pybliom]= (Citealp) [cite/p/bc:@rose-2019-pybliom]
+- =[cite/p/bare-full:@rose-2019-pybliom]= (citealp*) [cite/p/bare-full:@rose-2019-pybliom]
+- =[cite/p/bf:@rose-2019-pybliom]= (citealp*) [cite/p/bf:@rose-2019-pybliom]
+- =[cite/p/bare-caps-full:@rose-2019-pybliom]= (Citealp*) [cite/p/bare-caps-full:@rose-2019-pybliom]
+- =[cite/p/bcf:@rose-2019-pybliom]= (Citealp*) [cite/p/bcf:@rose-2019-pybliom]
+- =[cite/num:@rose-2019-pybliom]= (citenum) [cite/num:@rose-2019-pybliom]
 
 
 
 * Customizing org-ref-cite
 
-** Adding new styles
+** Customizing or adding new styles
 
-The cite styles are set in =org-ref-cite-styles= as a list of cons cells (style . latexcmd). You can add whatever styles you want to this if you need more styles, e.g. if you want to use the insert processor from this library, but the export processor for csl or biblatex.
+The cite styles are set in =org-ref-cite-styles=.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results code
 org-ref-cite-styles
 #+END_SRC
 
 #+RESULTS:
-: ((t . \cite) (p . \citep) (num . \citenum) (a . \citeauthor) (a/f . \citeauthor*) (a/c . \Citeauthor) (a/cf . \Citeauthor*) (na/b . \citeyear) (na . \citeyearpar) (nocite . \nocite) (t/b . \citealt) (t/f . \citet*) (t/bf . \citealt*) (t/c . \Citet) (t/cf . \Citet*) (t/bc . \Citealt) (t/bcf . \Citealt*) (/b . \citealp) (/bf . \citealp*) (/bc . \Citealp) (/bcf . \Citealp*) (/f . \citep*) (/c . \Citep) (/cf . \Citep*))
+#+begin_src emacs-lisp
+(((("text" "t"))
+  . "\\citet")
+ ((("text" "t")
+   ("bare" "b"))
+  . "\\citealt")
+ ((("text" "t")
+   ("caps" "c"))
+  . "\\Citet")
+ ((("text" "t")
+   ("full" "f"))
+  . "\\citet*")
+ ((("text" "t")
+   ("bare-caps" "bc"))
+  . "\\Citealt*")
+ ((("text" "t")
+   ("bare-full" "bf"))
+  . "\\citealt*")
+ ((("text" "t")
+   ("bare-full" "bcf"))
+  . "\\Citealt*")
+ ((("author" "a"))
+  . "\\citeauthor")
+ ((("author" "a")
+   ("caps" "c"))
+  . "\\Citeauthor")
+ ((("author" "a")
+   ("full" "f"))
+  . "\\citeauthor*")
+ ((("author" "a")
+   ("caps-full" "cf"))
+  . "\\Citeauthor*")
+ ((("noauthor" "na"))
+  . "\\citeyearpar")
+ ((("noauthor" "na")
+   ("bare" "b"))
+  . "\\citeyear")
+ ((("nocite"))
+  . "\\nocite")
+ ((("p"))
+  . "\\citep")
+ ((("p")
+   ("bare" "b"))
+  . "\\citealp")
+ ((("p")
+   ("caps" "c"))
+  . "\\Citep")
+ ((("p")
+   ("full" "f"))
+  . "\\citep*")
+ ((("p")
+   ("bare-caps" "bc"))
+  . "\\Citealp")
+ ((("p")
+   ("bare-full" "bf"))
+  . "\\citealp*")
+ ((("p")
+   ("bare-caps-full" "bf"))
+  . "\\Citealp*")
+ ((("num")
+   nil)
+  . "\\citenum"))
+#+end_src
 
-Say you want to add biblatex styles. Here is a way to generate the list. First, here are the available styles. The idea here is you will
-
-#+BEGIN_SRC emacs-lisp
-(org-cite-processor-cite-styles (org-cite--get-processor 'biblatex))
-#+END_SRC
-
-#+RESULTS:
-| (author a)    | (caps c) | (full f) | (caps-full cf) |
-| (locators l)  | (bare b) | (caps c) | (bare-caps bc) |
-| (noauthor na) |          |          |                |
-| (text t)      | (caps c) |          |                |
-| (nil)         | (bare b) | (caps c) | (bare-caps bc) |
-
-Suppose you want to add a new style called "locators/bare" and map it to the latex command =\textcite=. Just add it to the styles like this, and it will be immediately available in the style selector, and in export.
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'org-ref-cite-styles '("locators/bare" . "\\textcite"))
-#+END_SRC
-
-#+RESULTS:
-: ((locators/bare . \textcite) (t . \cite) (p . \citep) (num . \citenum) (a . \citeauthor) (a/f . \citeauthor*) (a/c . \Citeauthor) (a/cf . \Citeauthor*) (na/b . \citeyear) (na . \citeyearpar) (nocite . \nocite) (t/b . \citealt) (t/f . \citet*) (t/bf . \citealt*) (t/c . \Citet) (t/cf . \Citet*) (t/bc . \Citealt) (t/bcf . \Citealt*) (/b . \citealp) (/bf . \citealp*) (/bc . \Citealp) (/bcf . \Citealp*) (/f . \citep*) (/c . \Citep) (/cf . \Citep*))
+In theory you can make this defcustom anyway you want. It should probably be setq before you load org-ref-cite though. The export processor defines the available styles from this variable.
 
 ** Modifying the activation of citations
 
@@ -333,6 +425,9 @@ No problem, just make a different insert processor. You could make one like this
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
+#+RESULTS:
+: my-inserter
+
 Suppose you just want a completing-read compatible inserter using bibtex-completion for candidates. =org-ref-cite= provides a function that can be used instead of org-cite-basic--complete-key.
 
 #+BEGIN_SRC emacs-lisp
@@ -342,9 +437,6 @@ Suppose you just want a completing-read compatible inserter using bibtex-complet
 
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
-
-#+RESULTS:
-: my-inserter
 
 If you use Emacs 28, you might prefer this instead, which supports annotation.
 
@@ -425,3 +517,19 @@ This is probably the recipe. I probably do not need to distribute the bibliograp
 Before going on MELPA:
 - [ ] org 9.5 should be installable from a package-manager
 - [ ] I need to build this to check for byte-compiler issues
+
+* Sandbox notes                                                    :noexport:
+
+#+BEGIN_SRC emacs-lisp
+(org-cite-supported-styles)
+#+END_SRC
+
+#+RESULTS:
+| (noauthor na) | (caps c) | (bare-caps bc) | (bare b)            |          |                |          |
+| (nil)         | (full f) | (bare-full bf) | (bare-caps-full bf) | (caps c) | (bare-caps bc) | (bare b) |
+| (num)         |          |                |                     |          |                |          |
+| (nocite n)    |          |                |                     |          |                |          |
+| (author a)    | (full f) | (caps-full cf) | (caps c)            |          |                |          |
+| (text t)      | (bare b) | (full f)       | (bare-full bf bcf)  | (caps c) | (bare-caps bc) |          |
+| (note ft)     | (caps c) | (bare-caps bc) |                     |          |                |          |
+| (numeric nb)  |          |                |                     |          |                |          |

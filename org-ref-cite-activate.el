@@ -49,7 +49,9 @@
     (define-key map (kbd "M-p") 'org-ref-cite-update-pre/post)
     (define-key map (kbd "M-r") 'org-ref-cite-replace-key-with-suggestions)
     (define-key map (kbd "RET") 'org-ref-cite-follow)
-    (define-key map (kbd "<mouse-1>") 'org-ref-cite-follow)
+    ;; this seems like it is causing issues when you click at the end of a cite. taking it out for now.
+    ;; for some reason it is inserting a line?
+    ;; (define-key map (kbd "<mouse-1>") 'org-ref-cite-follow)
     map)
   "A keymap for `org-cite' citation elements."
   :group 'org-ref-cite)
@@ -143,13 +145,12 @@ CITE_EXPORT keyword, and defaults to the latex backend."
   (when  (member (cl-second (assoc 'latex org-cite-export-processors))
 		 '(org-ref-cite natbib))
     ;; Check the style
-    (unless (assoc (org-element-property :style citation) org-ref-cite-styles)
+    (unless (member (or (org-element-property :style citation) "") (org-ref-cite-flat-style-strings))
       (add-text-properties
        (org-element-property :begin citation)
        (1- (org-with-point-at (org-element-property :begin citation) (search-forward ":")))
        '(face org-ref-cite-invalid-style-face help-echo
 	      "This style is not supported in org-ref-cite.")))))
-
 
 
 (defun org-ref-cite-activate-prefix-suffix (citation)

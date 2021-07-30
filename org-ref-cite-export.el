@@ -89,14 +89,11 @@ On multiple references, the prefix of the first and the suffix of the last is us
       (format "[%s][%s]" prefix suffix)))))
 
 
-(defun org-ref-cite-export-citation (citation _style _ info)
-  "Export CITATION object.
-We ignore _STYLE here for the simpler way of getting it from the
-citation. INFO is the export state, as a property list."
-  (let ((style (org-element-property :style citation)))
-    (concat (cdr (assoc style org-ref-cite-styles))
-	    (org-ref-cite--build-optional-arguments citation info)
-	    (org-ref-cite--build-arguments citation))))
+(defun org-ref-cite-export-citation (citation style _ info)
+  "Export CITATION object."
+  (concat (org-ref-cite--style-to-command style)
+	  (org-ref-cite--build-optional-arguments citation info)
+	  (org-ref-cite--build-arguments citation)))
 
 
 (defun org-ref-cite-use-package (output &rest _)

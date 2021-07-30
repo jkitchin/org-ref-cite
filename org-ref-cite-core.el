@@ -28,51 +28,37 @@
 (require 'avy)
 (require 'bibtex-completion)
 
-;; org-cite uses (style . option) for styles, but that is more complicated than
-;; I need. I use simple strings here.
+
 (defcustom org-ref-cite-styles
-  '(;; In principle, this should map to \citet, but we use natmove alot, and it
-    ;; only works on \cite. So, I am making it be \cite here.
-    ("t" . "\\cite")
-    ("p" . "\\citep")
-    ("num" . "\\citenum")  		;this may not be csl compatible
-    ("a" . "\\citeauthor")
-    ("a/f" . "\\citeauthor*")
-    ("a/c" . "\\Citeauthor")
-    ("a/cf" . "\\Citeauthor*")
-    ;; Suppress author
-    ("na/b" . "\\citeyear")
-    ("na" . "\\citeyearpar")
-    ("nocite" . "\\nocite")
-    ;; text styles
-    ("t/b" . "\\citealt")
-    ("t/f" . "\\citet*")
-    ("t/bf" . "\\citealt*")
-    ("t/c" . "\\Citet")
-    ("t/cf" . "\\Citet*")
-    ("t/bc" . "\\Citealt")
-    ("t/bcf" . "\\Citealt*")
-    ;; bare styles
-    ("/b" . "\\citealp")
-    ("/bf" . "\\citealp*")
-    ("/bc" . "\\Citealp")
-    ("/bcf" . "\\Citealp*")
-    ("/f" . "\\citep*")
-    ("/c" . "\\Citep")
-    ("/cf" . "\\Citep*")
-    (nil . "\\cite"))
-  "Styles for natbib citations.
-See http://tug.ctan.org/macros/latex/contrib/natbib/natnotes.pdf
-
-\citetext is not supported as it does not use a key, and doesn't
-seem to do anything in the bibliography. citetalias and
-citepalias are also not supported. Otherwise I think this covers
-the natbib types, and these styles are compatible with csl styles
-that look similar.
-
-`oc-natbib.el' chooses \citep as default. This library uses
-\citet because it is more common in the scientific writing of the
-author."
+  '(((("text" "t")) . "\\citet")
+    ((("text" "t") ("bare" "b")) . "\\citealt")
+    ((("text" "t") ("caps" "c")) . "\\Citet")
+    ((("text" "t") ("full" "f")) . "\\citet*")
+    ((("text" "t") ("caps-full" "cf")) . "\\Citet*")
+    ((("text" "t") ("bare-caps" "bc")) . "\\Citealt*")
+    ((("text" "t") ("bare-full" "bf")) . "\\citealt*")
+    ((("text" "t") ("bare-full" "bcf")) . "\\Citealt*")
+    ;; author styles
+    ((("author" "a")) . "\\citeauthor")
+    ((("author" "a") ("caps" "c")) . "\\Citeauthor")
+    ((("author" "a") ("full" "f")) . "\\citeauthor*")
+    ((("author" "a") ("caps-full" "cf")) . "\\Citeauthor*")
+    ;; suppress author
+    ((("noauthor" "na")) . "\\citeyearpar")
+    ((("noauthor" "na") ("bare" "b")) . "\\citeyear")
+    ((("nocite")) . "\\nocite")
+    ;; parenthetical / nil styles
+    ((("p")) . "\\citep")
+    ((("p") ("bare" "b")) . "\\citealp")
+    ((("p") ("caps" "c")) . "\\Citep")
+    ((("p") ("full" "f")) . "\\citep*")
+    ((("p") ("bare-caps" "bc")) . "\\Citealp")
+    ((("p") ("bare-full" "bf")) . "\\citealp*")
+    ((("p") ("bare-caps-full" "bcf")) . "\\Citealp*")
+    ;; miscellaneous
+    ((("num")) . "\\citenum")
+    (((nil)) . "\\cite"))
+  "Alist of styles and commands for `org-ref-cite'."
   :group 'org-ref-cite)
 
 
@@ -81,11 +67,6 @@ author."
   "Function to annotate styles in selection.
 Two options are `org-ref-cite-basic-annotate-style', and
 `org-ref-cite-annotate-style'."
-  :group 'org-ref-cite)
-
-
-(defcustom org-ref-cite-default-citation-command "\\citet"
-  "Default command for citations."
   :group 'org-ref-cite)
 
 
@@ -104,28 +85,62 @@ cite_export keyword in a buffer."
   "Face for an annotated style.")
 
 
+(defun org-ref-cite-get-cite-styles ()
+  "Returns cite styles for the `org-ref-cite' processor.
+This uses the (style variant) structure of org-cite.
+This is intended for use in registering a processor."
+  (let ((cite-styles '()))
+    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+	     do
+	     (if (assoc style cite-styles)
+		 (when substyle (push substyle (cdr (assoc style cite-styles))))
+	       (push (list style) cite-styles)))
+    cite-styles))
+
+
+(defun org-ref-cite-get-combinatorial-style-commands ()
+  "Return the combinatorial possible styles and commands.
+Returns a list of elements like (STYLE . CMD) for every
+combination of the full and abbreviated names."
+  (apply #'append
+	 (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		  collect
+		  (apply #'append
+			 (cl-loop for st in style collect
+				  (if substyle
+				      (cl-loop for subst in substyle collect
+					       (cons (cons st subst) cmd))
+				    (list (cons (cons st nil) cmd))))))))
+
+
 (defun org-ref-cite--style-to-command (style)
-  "Return command name to use according to STYLE.
-Defaults to `org-ref-cite-default-citation-command' if STYLE is not found"
-  (or (cdr (assoc style org-ref-cite-styles)) org-ref-cite-default-citation-command))
+  "Look up the command for STYLE where style is a (style . variant) from an export processor."
+  (cdr (assoc style (org-ref-cite-get-combinatorial-style-commands))))
+
+
+(defun org-ref-cite-flat-style-strings ()
+  "Returns a flat list of possible style strings."
+  (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+	   collect
+	   (concat (car style)
+		   (when (cdr style) (format "/%s" (cdr style))))))
 
 
 (defun org-ref-cite-basic-annotate-style (s)
   "Annotation function for selecting style.
 Argument S The style candidate string.
 This annotator just looks up the cite LaTeX command for the style."
-  (let* ((w (+  (- 5 (length s)) 20)))
+  (let* ((w (+  (- 5 (length s)) 20))
+	 (lookup (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+			  collect
+			  (cons
+			   (concat (car style)
+				   (when (cdr style) (format "/%s" (cdr style))))
+			   command))))
     (concat (make-string w ? )
 	    (propertize
-	     (or (cdr (assoc s org-ref-cite-styles)) "")
+	     (or (cdr (assoc s lookup)) "")
 	     'face 'org-ref-cite-annotate-style-face))))
-
-
-(defun org-ref-cite-select-style ()
-  "Select a style with completion."
-  (interactive)
-  (let ((completion-extra-properties `(:annotation-function  ,org-ref-cite-style-annotation-function)))
-    (completing-read "Style: " org-ref-cite-styles)))
 
 
 (defun org-ref-cite-annotate-style (s)
@@ -169,6 +184,19 @@ If point is on a citation, it makes an export preview of the citation with the s
 	   backend t)))
 	    'face 'org-ref-cite-annotate-style-face)))
       (org-ref-cite-basic-annotate-style s))))
+
+
+(defun org-ref-cite-select-style ()
+  "Select a style with completion."
+  (interactive)
+  (let ((completion-extra-properties `(:annotation-function  ,org-ref-cite-style-annotation-function))
+	(candidates (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+			     collect
+			     (cons
+			      (concat (car style)
+				      (when (cdr style) (format "/%s" (cdr style))))
+			      command))))
+    (completing-read "Style: " candidates)))
 
 
 (defun org-ref-cite-update-style ()
