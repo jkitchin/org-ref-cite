@@ -412,7 +412,7 @@ org-ref-cite-activation-functions
 
 No problem, just make a different insert processor. You could make one like this that uses the oc-basic key completer, but the org-ref-cite style selector. I find the basic key completer too slow on large bibliography files.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (require 'oc-basic)
 (org-cite-register-processor 'my-inserter
   :insert (org-cite-make-insert-processor #'org-cite-basic--complete-key #'org-ref-cite-select-style))
@@ -420,12 +420,9 @@ No problem, just make a different insert processor. You could make one like this
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
 
-#+RESULTS:
-: my-inserter
-
 Suppose you just want a completing-read compatible inserter using bibtex-completion for candidates. =org-ref-cite= provides a function that can be used instead of org-cite-basic--complete-key.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (org-cite-register-processor 'my-inserter
  :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key
 					 #'org-ref-cite-select-style))
@@ -435,13 +432,14 @@ Suppose you just want a completing-read compatible inserter using bibtex-complet
 
 If you use Emacs 28, you might prefer this instead, which supports annotation.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
 (org-cite-register-processor 'my-inserter
  :insert (org-cite-make-insert-processor #'org-ref-cite--complete-key-28
 					 #'org-ref-cite-select-style))
 
 (setq org-cite-insert-processor 'my-inserter)
 #+END_SRC
+
 
 Now you are all set, you get bibtex-completion candidates and no ivy dependency required, and the default insertion behavior of the org-cite library.
 
