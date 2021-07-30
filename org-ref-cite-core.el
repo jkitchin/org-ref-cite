@@ -553,17 +553,22 @@ bibtex-completion-candidates."
 				   `(metadata
 				     ;; I use this closure since we need the table to do the annotation.
 				     (annotation-function . (lambda (s)
-							      (let ((w (+  (- 5 (length s)) 30)))
+							      (let ((w (max 0 (+  (- 5 (length s)) 30))))
 								(concat (make-string w ? )
 									(propertize
-									 (cl-second (assoc s table))
+									 (or
+									  (cl-second (assoc s table))
+									  " ")
 									 'face 'org-ref-cite-annotate-cite-key-face)))))
 				     (cycle-sort-function . identity)
-				     (display-sort-function . identity)
+				     (display-sort-function . (lambda (candidates)
+								(sort candidates #'string<)))
 				     (group-function . (lambda (key transform)
 							 (if transform
 							     key
-							   (substring key  0 1)))))
+							   (if (> (length key) 1)
+							       (substring key  0 1)
+							     "empty")))))
 				 (complete-with-action action table str pred)))))))
     (if (null multiple)
 	(org-string-nw-p (funcall prompt "Key: "))
