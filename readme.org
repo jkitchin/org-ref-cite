@@ -449,7 +449,31 @@ The following notes are true for me:
 
 2. If you use ivy-mode you still type return to select candidates, but you have to press C-M-return to end the selection and insert the candidates.
 
-3. If you use vertico or vanilla emacs on this, it is very tedious. You have to press Tab to see any candidates, use arrows to get to the one you want, press return to select it, repeat for additional candidates, and then press return at the end to insert them. If you have a lot of candidates, you really need something like helm/ivy/selectrum/etc. to help with the selection.
+3. If you use vanilla emacs on this, it is very tedious. You have to press Tab to see any candidates, use arrows to get to the one you want, press return to select it, repeat for additional candidates, and then press return at the end to insert them. If you have a lot of candidates, you really need something like helm/ivy/selectrum/etc. to help with the selection.
+
+
+* Using parts of org-ref-cite
+
+The way org-ref-cite is configured out of the box reflects the needs and opinions of the author. It does everything I want in this setup, and it is the setup I can best support because I use it.
+
+If you want to configure your own setup, you can. org-ref-cite provides a lot of modularity with completing-read compatibility.
+You could setup an insert processor that uses  [[https://github.com/bdarcus/bibtex-actions][bibtex-actions]] with pieces of org-ref-cite. For example you could use and customize the insert processor from org-ref-cite like this:
+
+#+BEGIN_SRC emacs-lisp
+(org-cite-register-processor 'bibtex-actions-alt
+  :insert (org-cite-make-insert-processor #'oc-bibtex-actions-insert
+					  #'org-ref-cite-select-style))
+
+(setq org-cite-insert-processor 'bibtex-actions-alt)
+#+END_SRC
+
+and customize the activate function like this.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-ref-cite-activation-functions '(your list of functions)
+      org-cite-activate-processor 'org-ref-cite-activate)
+#+END_SRC
+
 
 * Dependencies
 
