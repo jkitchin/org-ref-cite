@@ -189,14 +189,29 @@ If point is on a citation, it makes an export preview of the citation with the s
 (defun org-ref-cite-select-style ()
   "Select a style with completion."
   (interactive)
-  (let ((completion-extra-properties `(:annotation-function  ,org-ref-cite-style-annotation-function))
-	(candidates (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
+  (let ((candidates (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
 			     collect
-			     (cons
-			      (concat (car style)
-				      (when (cdr style) (format "/%s" (cdr style))))
-			      command))))
-    (completing-read "Style: " candidates)))
+			     (concat (car style)
+				     (when (cdr style) (format "/%s" (cdr style)))))))
+    (completing-read "Style: "
+		     (lambda (str pred action)
+		       (if (eq action 'metadata)
+			   `(metadata
+			     ;; I use this closure since we need the table to do the annotation.
+			     (annotation-function . org-ref-cite-annotate-style)
+			     (cycle-sort-function . identity)
+			     ;; Sort so shorter keys (abbreviations come first)
+			     (display-sort-function . (lambda (candidates)
+							(sort candidates (lambda (a b)
+									   (< (length a) (length b))))))
+			     ;; Group by the first letter.
+			     (group-function . (lambda (style transform)
+						 (if transform
+						     style
+						   (if (> (length style) 1)
+						       (substring style  0 1)
+						     "nil")))))
+			 (complete-with-action action candidates str pred))))))
 
 
 (defun org-ref-cite-update-style ()
