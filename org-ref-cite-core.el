@@ -110,7 +110,7 @@ This annotator just looks up the cite LaTeX command for the style."
     (concat (make-string w ? )
 	    (propertize
 	     (cdr (assoc s org-ref-cite-styles))
-	     'face org-ref-cite-annotate-style-face))))
+	     'face 'org-ref-cite-annotate-style-face))))
 
 
 (defun org-ref-cite-select-style ()
@@ -123,42 +123,44 @@ This annotator just looks up the cite LaTeX command for the style."
 (defun org-ref-cite-annotate-style (s)
   "Annotation function for selecting style.
 Argument S is the style string.
-This annotator makes an export preview of the citation with the style."
 
-  (let* ((context (org-element-context))
-	 (citation (if (member (org-element-type context) '(citation))
-		       context
-		     (org-element-property :parent context)))
-	 (references (org-cite-get-references citation))
-	 (cite-string (format "[cite/%s:%s]"
-			      s
-			      (org-element-interpret-data references)))
-	 (cite-export (cadr (assoc "CITE_EXPORT"
-				   (org-collect-keywords
-				    '("CITE_EXPORT")))))
-	 (org-cite-proc (when cite-export
-			  (cl-first (split-string cite-export))))
-	 (backend (if cite-export
-		      (cl-loop for (backend ep _) in org-cite-export-processors
-			       when (equal ep (intern-soft cite-export))
-			       return backend)
-		    'latex))
-	 (export-string (concat
-			 (if cite-export
-			     (concat (format "#+cite_export: %s\n" cite-export))
-			   "")
-			 cite-string)))
-    (when (string= "nil" backend) (setq backend 'latex))
-    (concat
-     (make-string (+  (- 5 (length s)) 20) ? )
-     (propertize
-      ;; I think these should be one line.
-      (replace-regexp-in-string "
+If point is on a citation, it makes an export preview of the citation with the style."
+  (let ((context (org-element-context)))
+    (if (member (org-element-type context) '(citation citation-reference))
+	(let* ((citation (if (member (org-element-type context) '(citation))
+			     context
+			   (org-element-property :parent context)))
+	       (references (org-cite-get-references citation))
+	       (cite-string (format "[cite/%s:%s]"
+				    s
+				    (org-element-interpret-data references)))
+	       (cite-export (cadr (assoc "CITE_EXPORT"
+					 (org-collect-keywords
+					  '("CITE_EXPORT")))))
+	       (org-cite-proc (when cite-export
+				(cl-first (split-string cite-export))))
+	       (backend (if cite-export
+			    (cl-loop for (backend ep _) in org-cite-export-processors
+				     when (equal ep (intern-soft cite-export))
+				     return backend)
+			  'latex))
+	       (export-string (concat
+			       (if cite-export
+				   (concat (format "#+cite_export: %s\n" cite-export))
+				 "")
+			       cite-string)))
+	  (when (string= "nil" backend) (setq backend 'latex))
+	  (concat
+	   (make-string (+  (- 5 (length s)) 20) ? )
+	   (propertize
+	    ;; I think these should be one line.
+	    (replace-regexp-in-string "
 " ""
 (org-trim (org-export-string-as
 	   export-string
 	   backend t)))
-      'face org-ref-cite-annotate-style-face))))
+	    'face 'org-ref-cite-annotate-style-face)))
+      (org-ref-cite-basic-annotate-style s))))
 
 
 (defun org-ref-cite-update-style ()
