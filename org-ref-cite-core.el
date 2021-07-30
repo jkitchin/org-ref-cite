@@ -109,7 +109,7 @@ This annotator just looks up the cite LaTeX command for the style."
   (let* ((w (+  (- 5 (length s)) 20)))
     (concat (make-string w ? )
 	    (propertize
-	     (cdr (assoc s org-ref-cite-styles))
+	     (or (cdr (assoc s org-ref-cite-styles)) "")
 	     'face 'org-ref-cite-annotate-style-face))))
 
 
@@ -179,7 +179,6 @@ If point is on a citation, it makes an export preview of the citation with the s
 				  (concat "/" style))
 		  (org-element-interpret-data refs)))
     (goto-char cp)))
-
 
 
 ;; * Navigation functions
