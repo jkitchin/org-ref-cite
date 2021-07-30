@@ -89,6 +89,14 @@ Two options are `org-ref-cite-basic-annotate-style', and
   :group 'org-ref-cite)
 
 
+(defcustom org-ref-cite-default-preview-backend 'latex
+  "Default backend to generate previews with.
+It should be one of the org-mode exporters defined in
+`org-cite-export-processors'. You can override this with the
+cite_export keyword in a buffer."
+  :group 'org-ref-cite)
+
+
 ;; * Style
 
 (defface org-ref-cite-annotate-style-face
@@ -143,13 +151,13 @@ If point is on a citation, it makes an export preview of the citation with the s
 			    (cl-loop for (backend ep _) in org-cite-export-processors
 				     when (equal ep (intern-soft cite-export))
 				     return backend)
-			  'latex))
+			  org-ref-cite-default-preview-backend ))
 	       (export-string (concat
 			       (if cite-export
 				   (concat (format "#+cite_export: %s\n" cite-export))
 				 "")
 			       cite-string)))
-	  (when (string= "nil" backend) (setq backend 'latex))
+	  (when (string= "nil" backend) (setq backend org-ref-cite-default-preview-backend ))
 	  (concat
 	   (make-string (+  (- 5 (length s)) 20) ? )
 	   (propertize
