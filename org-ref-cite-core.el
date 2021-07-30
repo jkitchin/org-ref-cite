@@ -238,7 +238,6 @@ If point is on a citation, it makes an export preview of the citation with the s
 						    ((or (string= "no" (substring style 0 2))
 							 (string= "na" (substring style 0 2)))
 						     "No author")
-
 						    (t
 						     "Misc"))))))
 			 (complete-with-action action candidates str pred))))))
