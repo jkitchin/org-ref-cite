@@ -129,8 +129,8 @@ CITE_EXPORT keyword, and defaults to the latex backend."
 					(cl-loop for (backend ep _) in org-cite-export-processors
 						 when (equal ep (intern-soft cite-export))
 						 return backend)
-				      'latex)))
-		      (when (string= "nil" backend) (setq backend 'latex))
+				      org-ref-cite-default-preview-backend)))
+		      (when (string= "nil" backend) (setq backend org-ref-cite-default-preview-backend))
 		      (org-trim (org-export-string-as
 				 (concat
 				  (if cite-export
