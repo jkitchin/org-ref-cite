@@ -30,7 +30,11 @@
 ;;
 ;; The following org-keywords fine tune the export:
 ;;
-;; You need to use the natbib package with this exporter. The export processor will check to make sure you have
+;; You need to use the natbib package with this exporter. The export processor will check to make sure
+;; you have it set up, and will set it up if you do not.
+;;
+;; These keywords influence the setup:
+;;
 ;; NATBIB_OPTIONS:
 ;;  If you want to overwrite the defaults in `org-latex-packages-alist' you can set them in the keywords
 ;;
