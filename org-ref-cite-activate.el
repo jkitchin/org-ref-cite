@@ -20,7 +20,9 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
-;; This adds a keymap to citation objects, and a tooltip that shows how they export to LaTeX.
+;; This adds a keymap to citation objects, a tooltip that shows how they export
+;; to LaTeX, and fontification on different parts of a citation that might be
+;; invalid for this processor.
 
 (require 'oc-basic)
 (require 'org-ref-cite-core)
