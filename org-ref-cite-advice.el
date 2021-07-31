@@ -95,6 +95,13 @@ ELEMENT is the element at point."
 ;; (put 'org-mode 'flyspell-mode-predicate 'org-ref-cite-flyspell-predicate)
 ;; (get 'org-mode 'flyspell-mode-predicate)
 
+
+(defun org-ref-cite-remove-advice ()
+  "Remove advices defined in this library."
+  (interactive)
+  (advice-remove 'org-cite-list-bibliography-files 'org-ref-cite-list-bibliography-files)
+  (advice-remove 'org--flyspell-object-check-p 'org-ref-cite--flyspell-object-check-p))
+
 (provide 'org-ref-cite-advice)
 
 ;;; org-ref-cite-advice.el ends here
