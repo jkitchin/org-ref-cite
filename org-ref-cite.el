@@ -6,7 +6,7 @@
 ;; URL: https://github.com/jkitchin/org-ref-cite
 ;; Version: 1.0
 ;; Keywords: org-mode, cite, ref, label
-;; Package-Requires: ((org "9.5") (ivy "0") (hydra "0") (bibtex-completion "0") (ivy-bibtex "0"))
+;; Package-Requires: ((org "9.5") (ivy "0") (hydra "0") (bibtex-completion "0") (avy "0") (ivy-bibtex "0")
 ;; This file is not currently part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -25,7 +25,14 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
+;; This package sets up the `org-ref-cite' citation processor. It provides
+;; processors for activation, following, insertion and export. The target
+;; backend for export is LaTeX with the natbib package and bibtex citation
+;; processor.
 ;;
+;; The default setup uses `bibtex-completion' for candidates with `ivy' for
+;; completion. See readme.org for details on how to use modular pieces of this
+;; library in your own processor.
 ;;
 ;;; Code:
 
