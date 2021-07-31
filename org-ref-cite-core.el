@@ -21,6 +21,7 @@
 ;;
 ;;; Commentary:
 ;;
+;; This is a core library that provides functions used in the processor components.
 
 ;;; Code:
 (require 'oc)
@@ -597,6 +598,9 @@ processor like this:
             (setq key (funcall prompt (funcall build-prompt)))))
         keys))))
 
+
+;; * An Emacs 28 compatible completing-read inserter
+;; This uses annotations and grouping
 
 (defface org-ref-cite-annotate-cite-key-face
   `((t (:inherit org-cite)))
