@@ -282,6 +282,12 @@
   ("ESC" nil "Quit" :column "Misc"))
 
 
+(defun org-ref-cite-annotate-follow-key (key)
+  "Annotation function when following a key."
+  ;; follow-alist is let-bound in a closure here.
+  (concat "   " (cdr (assoc key follow-alist))))
+
+
 (defun org-ref-cite-follow (&optional datum _)
   "Follow function consistent with the org-cite API.
 Optional argument DATUM: The element at point.
@@ -293,9 +299,18 @@ If you follow on the style part you will be prompted for a key to act on."
     ;; at style part or end part
     (if (= (point) (org-element-property :end datum))
 	(org-return)
-      (let* ((refs (org-cite-get-references datum))
+      (let* ((bibtex-completion-bibliography (org-cite-list-bibliography-files))
+	     (candidates (bibtex-completion-candidates))
+	     (follow-alist (mapcar (lambda (x) (cons (cdr (assoc "=key=" (cdr x))) (car x))) candidates))
+	     (refs (org-cite-get-references datum))
 	     (keys (mapcar (lambda (ref) (org-element-property :key ref)) refs))
-	     (key (completing-read "Key: " keys)))
+	     (key (completing-read "Citation key: "
+				   (lambda (str pred action)
+				     (if (eq action 'metadata)
+					 `(metadata
+					   ;; I use this closure since we need the table to do the annotation.
+					   (annotation-function . org-ref-cite-annotate-follow-key))
+				       (complete-with-action action keys str pred))))))
 	(search-forward (concat "@" key))
 	(goto-char (match-beginning 0))
 	(org-ref-cite-citation-reference/body)))))
