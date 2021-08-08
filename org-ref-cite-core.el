@@ -69,6 +69,14 @@ at export."
   :group 'org-ref-cite)
 
 
+(defcustom org-ref-cite-style-format
+  'short-short
+  "Format for org-ref-cite-styles.
+Should be a symbol like: 'long-long, 'long-short, 'short-long,
+'short-short or 'all"
+  :group 'org-ref-cite)
+
+
 (defcustom org-ref-cite-default-style
   "/t"
   "The default style to use when inserting citations.
@@ -118,15 +126,38 @@ This is intended for use in registering a processor."
 Returns a list of elements like (STYLE . CMD) for every
 combination of the full and abbreviated names. STYLE is a cons
 cell like org-cite uses (Main-style . variant)."
-  (apply #'append
-	 (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		  collect
-		  (apply #'append
-			 (cl-loop for st in style collect
-				  (if substyle
-				      (cl-loop for subst in substyle collect
-					       (cons (cons st subst) cmd))
-				    (list (cons (cons st nil) cmd))))))))
+  (pcase org-ref-cite-style-format
+    ('long-long
+     (apply #'append
+	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		     collect
+		     (list (cons (cons (cl-first style) (cl-first substyle)) cmd)))))
+    ('long-short
+     (apply #'append
+	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		     collect
+		     (list (cons (cons (cl-first style) (cl-second substyle)) cmd)))))
+    ('short-long
+     (apply #'append
+	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		     collect
+		     (list (cons (cons (cl-second style) (cl-first substyle)) cmd)))))
+    ('short-short
+     (apply #'append
+	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		     collect
+		     (list (cons (cons (cl-second style) (cl-second substyle)) cmd)))))
+
+    (_
+     (apply #'append
+	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		     collect
+		     (apply #'append
+			    (cl-loop for st in style collect
+				     (if substyle
+					 (cl-loop for subst in substyle collect
+						  (cons (cons st subst) cmd))
+				       (list (cons (cons st nil) cmd))))))))))
 
 
 (defun org-ref-cite--style-to-command (style)
@@ -142,20 +173,41 @@ cell like org-cite uses (Main-style . variant)."
 		   (when (cdr style) (format "/%s" (cdr style))))))
 
 
+(defun org-ref-cite-guess-backend ()
+  "Returns best guess for the export backend.
+Looks for a #+cite_export keyword, and defaults to
+`org-ref-cite-default-preview-backend'."
+  (let* (;; #+cite_export: name bibliography-style citation-style
+	 (cite-export (cadr (assoc "CITE_EXPORT"
+				   (org-collect-keywords
+				    '("CITE_EXPORT")))))
+	 (org-cite-proc (when cite-export
+			  (cl-first (split-string cite-export))))
+	 (backend (if cite-export
+		      (cl-loop for (backend ep _) in org-cite-export-processors
+			       when (equal ep (intern-soft org-cite-proc))
+			       return backend)
+		    org-ref-cite-default-preview-backend)))
+    (when (or (null backend) (string= "nil" backend))
+      (setq backend org-ref-cite-default-preview-backend))
+    (cons backend cite-export)))
+
+
 (defun org-ref-cite-basic-annotate-style (s)
   "Annotation function for selecting style.
-Argument S The style candidate string.
-This annotator just looks up the cite LaTeX command for the style."
+Argument S is the style candidate string."
   (let* ((w (+  (- 5 (length s)) 20))
-	 (lookup (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
-			  collect
-			  (cons
-			   (concat (car style)
-				   (when (cdr style) (format "/%s" (cdr style))))
-			   command))))
+	 (backend (org-ref-cite-guess-backend)))
     (concat (make-string w ? )
 	    (propertize
-	     (or (cdr (assoc s lookup)) "")
+	     (org-trim
+	      (org-export-string-as (format "%s\n[cite/%s:@key]"
+					    (if (cdr backend)
+						(format "#+cite_export: %s\n" (cdr backend))
+					      "")
+					    s)
+				    (car backend)
+				    t))
 	     'face 'org-ref-cite-annotate-style-face))))
 
 
@@ -188,7 +240,7 @@ If point is on a citation, it makes an export preview of the citation with the s
 				   (concat (format "#+cite_export: %s\n" cite-export))
 				 "")
 			       cite-string)))
-	  (when (string= "nil" backend) (setq backend org-ref-cite-default-preview-backend ))
+	  (when (or (null backend) (string= "nil" backend)) (setq backend org-ref-cite-default-preview-backend))
 	  (concat
 	   (make-string (+  (- 5 (length s)) 20) ? )
 	   (propertize
@@ -199,6 +251,7 @@ If point is on a citation, it makes an export preview of the citation with the s
 	   export-string
 	   backend t)))
 	    'face 'org-ref-cite-annotate-style-face)))
+      ;; not on a citation or reference, use the basic one.
       (org-ref-cite-basic-annotate-style s))))
 
 
