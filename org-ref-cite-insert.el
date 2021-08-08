@@ -90,7 +90,8 @@ This is called by `org-cite-insert'."
    ;; the usual case where we insert a ref
    ((null arg)
     (bibtex-completion-init)
-    (let* ((candidates (bibtex-completion-candidates)))
+    (let* ((bibtex-completion-bibliography (org-cite-list-bibliography-files))
+	   (candidates (bibtex-completion-candidates)))
       (ivy-read "BibTeX entries: " candidates
 		:action (lambda (candidate)
 			  (org-ref-cite-insert-citation
@@ -102,7 +103,8 @@ This is called by `org-cite-insert'."
     (if context
 	(org-ref-cite-update-style)
       (bibtex-completion-init)
-      (let* ((candidates (bibtex-completion-candidates)))
+      (let* ((bibtex-completion-bibliography (org-cite-list-bibliography-files))
+	     (candidates (bibtex-completion-candidates)))
 	(ivy-read "BibTeX entries: " candidates
 		  :caller 'org-cite-insert
 		  :action '(1
