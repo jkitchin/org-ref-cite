@@ -121,43 +121,72 @@ This is intended for use in registering a processor."
     cite-styles))
 
 
+;; (defun org-ref-cite-get-combinatorial-style-commands ()
+;;   "Return the combinatorial possible styles and commands.
+;; Returns a list of elements like (STYLE . CMD) for every
+;; combination of the full and abbreviated names. STYLE is a cons
+;; cell like org-cite uses (Main-style . variant)."
+;; (pcase org-ref-cite-style-format
+;;   ('long-long
+;;    (apply #'append
+;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+;; 		   collect
+;; 		   (list (cons (cons (cl-first style) (cl-first substyle)) cmd)))))
+;;   ('long-short
+;;    (apply #'append
+;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+;; 		   collect
+;; 		   (list (cons (cons (cl-first style) (cl-second substyle)) cmd)))))
+;;   ('short-long
+;;    (apply #'append
+;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+;; 		   collect
+;; 		   (list (cons (cons (cl-second style) (cl-first substyle)) cmd)))))
+;;   ('short-short
+;;    (apply #'append
+;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+;; 		   collect
+;; 		   (list (cons (cons (cl-second style) (cl-second substyle)) cmd)))))
+
+;;   (_
+;;    (apply #'append
+;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+;; 		   collect
+;; 		   (apply #'append
+;; 			  (cl-loop for st in style collect
+;; 				   (if substyle
+;; 				       (cl-loop for subst in substyle collect
+;; 						(cons (cons st subst) cmd))
+;; 				     (list (cons (cons st nil) cmd))))))))))
+
 (defun org-ref-cite-get-combinatorial-style-commands ()
   "Return the combinatorial possible styles and commands.
 Returns a list of elements like (STYLE . CMD) for every
 combination of the full and abbreviated names. STYLE is a cons
 cell like org-cite uses (Main-style . variant)."
-  (pcase org-ref-cite-style-format
-    ('long-long
-     (apply #'append
-	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		     collect
-		     (list (cons (cons (cl-first style) (cl-first substyle)) cmd)))))
-    ('long-short
-     (apply #'append
-	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		     collect
-		     (list (cons (cons (cl-first style) (cl-second substyle)) cmd)))))
-    ('short-long
-     (apply #'append
-	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		     collect
-		     (list (cons (cons (cl-second style) (cl-first substyle)) cmd)))))
-    ('short-short
-     (apply #'append
-	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		     collect
-		     (list (cons (cons (cl-second style) (cl-second substyle)) cmd)))))
+  (apply #'append
+	 (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
+		  collect
+		  (apply #'append
+			 (cl-loop for st in style collect
+				  (if substyle
+				      (cl-loop for subst in substyle collect
+					       (cons (cons st subst) cmd))
+				    (list (cons (cons st nil) cmd))))))))
 
-    (_
-     (apply #'append
-	    (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-		     collect
-		     (apply #'append
-			    (cl-loop for st in style collect
-				     (if substyle
-					 (cl-loop for subst in substyle collect
-						  (cons (cons st subst) cmd))
-				       (list (cons (cons st nil) cmd))))))))))
+(defun org-ref-cite-get-combinatorial-styles ()
+  "Return the combinatorial possible styles for the export processor."
+  (let ((styles (org-cite-supported-styles (list (org-ref-cite-guess-export-processor)))))
+
+    (apply #'append
+	   (cl-loop for group in styles
+		    collect
+		    (apply #'append
+			   (cl-loop for (variant abbrv) in (cdr group) collect
+				    (if substyle
+					(cl-loop for subst in substyle collect
+						 (cons (cons st subst) cmd))
+				      (list (cons (cons st nil) cmd)))))))))
 
 
 (defun org-ref-cite--style-to-command (style)
@@ -191,6 +220,23 @@ Looks for a #+cite_export keyword, and defaults to
     (when (or (null backend) (string= "nil" backend))
       (setq backend org-ref-cite-default-preview-backend))
     (cons backend cite-export)))
+
+
+(defun org-ref-cite-guess-export-processor ()
+  "Returns best guess for the export processor.
+Looks for a #+cite_export keyword, and defaults to
+`org-ref-cite-default-preview-backend'."
+  (let* (;; #+cite_export: name bibliography-style citation-style
+	 (cite-export (cadr (assoc "CITE_EXPORT"
+				   (org-collect-keywords
+				    '("CITE_EXPORT")))))
+	 (org-cite-proc (when cite-export
+			  (cl-first (split-string cite-export)))))
+    (or org-cite-proc
+	(cl-loop for (backend ep _) in org-cite-export-processors
+		 when (equal backend org-ref-cite-default-preview-backend)
+		 return ep)
+	'basic)))
 
 
 (defun org-ref-cite-basic-annotate-style (s)
@@ -258,10 +304,29 @@ If point is on a citation, it makes an export preview of the citation with the s
 (defun org-ref-cite-select-style ()
   "Select a style with completion."
   (interactive)
-  (let ((candidates (cl-loop for (style . command) in (org-ref-cite-get-combinatorial-style-commands)
-			     collect
-			     (concat (car style)
-				     (when (cdr style) (format "/%s" (cdr style)))))))
+  (let* ((styles (org-cite-supported-styles (list (org-ref-cite-guess-export-processor))))
+	 (style-candidates (let ((styles (org-cite-supported-styles (list (org-ref-cite-guess-export-processor)))))
+			     (delete nil (cl-loop for group in styles append
+						  (cl-loop for variant in (cdr group) append
+							   (list `(,(car group) . (,variant))))))))
+
+	 (cons-candidates (pcase org-ref-cite-style-format
+			    ('short-short
+			     (cl-loop for (main variant) in style-candidates
+				      collect (cons (cl-second main) (cl-second variant))))
+			    ('short-long
+			     (cl-loop for (main variant) in style-candidates
+				      collect (cons (cl-second main) (cl-first variant))))
+			    ('long-long
+			     (cl-loop for (main variant) in style-candidates
+				      collect (cons (cl-first main) (cl-first variant))))
+			    ('long-short
+			     (cl-loop for (main variant) in style-candidates
+				      collect (cons (cl-first main) (cl-second variant))))
+			    (_
+			     style-candidates)))
+	 (candidates (mapcar (lambda (c) (format "%s/%s" (or (car c) "") (cdr c))) cons-candidates)))
+
     (completing-read "Style: "
 		     (lambda (str pred action)
 		       (if (eq action 'metadata)
