@@ -192,7 +192,7 @@ CITE_EXPORT keyword, and defaults to the latex backend."
 
 
 (defun org-ref-cite-activate (citation)
-  "Add a keymap to cites.
+  "Run all the activation funcitons in `org-ref-cite-activation-functions'.
 Argument CITATION is an org-element holding the references."
   (cl-loop for activate-func in org-ref-cite-activation-functions
 	   do
