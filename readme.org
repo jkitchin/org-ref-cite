@@ -29,10 +29,13 @@ These videos are from the version of this library that was oc-bibtex. They might
 
 * setup
 
-Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded paths that you will have to adjust for where you have these. One day you will probably install this with MELPA, and that won't be necessary.
+Here is my setup for bibtex-completion and org-cite. These currently have hard-coded paths that you will have to adjust for where you have these. One day you will probably install this with MELPA, and that won't be necessary.
+
+
 
 #+BEGIN_SRC emacs-lisp :results silent
 (use-package ivy-bibtex
+  :config (ivy-mode +1)
   :init
   (setq bibtex-completion-bibliography '("/Users/jkitchin/Dropbox/emacs/scimax/org-ref-cite/org-ref-cite.bib")
 	bibtex-completion-notes-path "/Users/jkitchin/Dropbox/emacs/scimax/org-ref-cite/notes"
@@ -45,9 +48,9 @@ Here is my setup for ivy-bibtex and org-cite. These currently have hard-coded pa
 	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
 	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
 	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
-	bibtex-completion-pdf-open-function
-	(lambda (fpath)
-	  (call-process "open" nil 0 nil fpath))))
+	;; This is specific for a Mac I think
+	bibtex-completion-pdf-open-function (lambda (fpath)
+					      (call-process "open" nil 0 nil fpath))))
 
 (use-package citeproc)
 
