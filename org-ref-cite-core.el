@@ -121,44 +121,6 @@ This is intended for use in registering a processor."
     cite-styles))
 
 
-;; (defun org-ref-cite-get-combinatorial-style-commands ()
-;;   "Return the combinatorial possible styles and commands.
-;; Returns a list of elements like (STYLE . CMD) for every
-;; combination of the full and abbreviated names. STYLE is a cons
-;; cell like org-cite uses (Main-style . variant)."
-;; (pcase org-ref-cite-style-format
-;;   ('long-long
-;;    (apply #'append
-;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-;; 		   collect
-;; 		   (list (cons (cons (cl-first style) (cl-first substyle)) cmd)))))
-;;   ('long-short
-;;    (apply #'append
-;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-;; 		   collect
-;; 		   (list (cons (cons (cl-first style) (cl-second substyle)) cmd)))))
-;;   ('short-long
-;;    (apply #'append
-;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-;; 		   collect
-;; 		   (list (cons (cons (cl-second style) (cl-first substyle)) cmd)))))
-;;   ('short-short
-;;    (apply #'append
-;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-;; 		   collect
-;; 		   (list (cons (cons (cl-second style) (cl-second substyle)) cmd)))))
-
-;;   (_
-;;    (apply #'append
-;; 	  (cl-loop for ((style substyle) . cmd) in org-ref-cite-styles
-;; 		   collect
-;; 		   (apply #'append
-;; 			  (cl-loop for st in style collect
-;; 				   (if substyle
-;; 				       (cl-loop for subst in substyle collect
-;; 						(cons (cons st subst) cmd))
-;; 				     (list (cons (cons st nil) cmd))))))))))
-
 (defun org-ref-cite-get-combinatorial-style-commands ()
   "Return the combinatorial possible styles and commands.
 Returns a list of elements like (STYLE . CMD) for every
