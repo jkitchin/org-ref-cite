@@ -43,6 +43,7 @@
 (require 'org-ref-cite-insert)
 (require 'org-ref-cite-follow)
 (require 'org-ref-cite-export)
+(require 'org-ref-cite-ref)
 (require 'org-ref-cite-compat)
 (require 'org-ref-cite-utils)
 
