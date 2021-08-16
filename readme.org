@@ -34,6 +34,9 @@ Here is my setup for bibtex-completion and org-cite. These currently have hard-c
 
 
 #+BEGIN_SRC emacs-lisp :results silent
+(use-package org
+  :load-path "/Users/jkitchin/Dropbox/emacs/tests/org-mode-git/lisp")
+
 (use-package ivy-bibtex
   :config (ivy-mode +1)
   :init
