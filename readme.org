@@ -54,7 +54,7 @@ Here is my setup for bibtex-completion and org-cite. These currently have hard-c
 
 (use-package citeproc)
 
-(use-package org-cite
+(use-package oc
   :load-path "/Users/jkitchin/Dropbox/emacs/tests/org-mode-git/lisp"
   :config
   (require 'oc-csl))
