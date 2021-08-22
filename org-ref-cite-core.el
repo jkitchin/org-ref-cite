@@ -2,6 +2,12 @@
 ;;
 ;; Copyright(C) 2021 John Kitchin
 ;;
+;; Author: John Kitchin <jkitchin@andrew.cmu.edu>
+;; URL: https://github.com/jkitchin/org-ref-cite
+;; Version: 1.0
+;; Keywords: org-mode, cite, ref, label
+;; Package-Requires: ((org-mode "9.5") (avy "0") (hydra "0") (bibtex-completion "0"))
+
 ;; This file is not currently part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
