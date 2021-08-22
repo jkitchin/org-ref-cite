@@ -83,7 +83,8 @@
     org-ref-cite-activate-tooltip
     org-ref-cite-activate-style-fontification
     org-ref-cite-activate-prefix-suffix)
-  "List of activation functions for a citation."
+  "List of activation functions for a citation.
+Each function takes one argument, a citation."
   :group 'org-ref-cite)
 
 
@@ -192,7 +193,7 @@ CITE_EXPORT keyword, and defaults to the latex backend."
 
 
 (defun org-ref-cite-activate (citation)
-  "Run all the activation funcitons in `org-ref-cite-activation-functions'.
+  "Run all the activation functions in `org-ref-cite-activation-functions'.
 Argument CITATION is an org-element holding the references."
   (cl-loop for activate-func in org-ref-cite-activation-functions
 	   do
