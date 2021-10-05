@@ -24,13 +24,14 @@
 
 ;;; Code:
 
-(require 'org-ref)
+
 
 ;; * Compatibility functions
 
 (defun org-ref-to-org-cite ()
   "Convert `org-ref' links to `org-cite' syntax in the current buffer."
   (interactive)
+  (require 'org-ref)
   (let ((cites (reverse (org-element-map (org-element-parse-buffer) 'link
 			  (lambda (lnk)
 			    (when (member (org-element-property :type lnk)
