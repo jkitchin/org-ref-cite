@@ -64,7 +64,7 @@
     ("k" ivy-bibtex-insert-key "Insert BibTeX key")
     ("b" ivy-bibtex-insert-bibtex "Insert BibTeX entry")
     ("a" ivy-bibtex-add-PDF-attachment "Attach PDF to email")
-    ("e" ivy-bibtex-edit-notes "Edit notes")
+    ("n" ivy-bibtex-edit-notes "Edit notes")
     ("s" ivy-bibtex-show-entry "Show entry")
     ("l" ivy-bibtex-add-pdf-to-library "Add PDF to library")
     ("f" (lambda (_candidate) (ivy-bibtex-fallback ivy-text)) "Fallback options"))
