@@ -3,6 +3,8 @@
 
 #+latex: \maketitle
 
+This repo is archived and not actively maintained. If anyone wants to take over maintenance please contact me. 
+
 This directory contains org-ref-cite. It is a setup derived from oc-natbib.el that is more similar to what I am used to with org-ref. The features include:
 
 1. Use bibtex-completion candidates and ivy to insert references
